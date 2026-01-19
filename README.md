@@ -68,8 +68,6 @@ You can download the app from the [App Store](https://apps.apple.com/ae/app/mujo
 
 ### Basic Setup
 
-Stream AR pose data from your phone to any application:
-
 ```python
 from teledex import Session
 
