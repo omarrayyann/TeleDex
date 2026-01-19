@@ -74,9 +74,9 @@ from teledex import Session
 session = Session()
 session.start()
 
-# Retrieve the latest AR data
+# Retrieve AR data
 data = session.get_latest_data()
-# {"position": (3,), "rotation": (3, 3), "button": bool, "toggle": bool}
+# Returns: {"position": (3,), "rotation": (3, 3), "button": bool, "toggle": bool}
 ```
 
 ### MuJoCo Setup
