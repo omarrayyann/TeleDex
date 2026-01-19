@@ -82,7 +82,7 @@ data = session.get_latest_data()  # {"position": (3,), "rotation": (3, 3), "butt
 
 ### MuJoCo Setup
 
-Control MuJoCo frames (body, geom, or site) with AR data:
+Control MuJoCo frames (body, geom, or site) with Teledex:
 
 ```python
 from teledex import Session, MujocoHandler
