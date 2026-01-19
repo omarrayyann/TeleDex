@@ -19,9 +19,9 @@ You can download the app from the [App Store](https://apps.apple.com/ae/app/mujo
 ### Basic Setup
 
 ```python
-from teledex import Session
+import teledex
 
-session = Session()
+session = teledex.Session()
 session.start()
 
 # Retrieve AR data
@@ -34,11 +34,11 @@ data = session.get_latest_data()
 Control MuJoCo frames (body, geom, or site) with Teledex:
 
 ```python
-from teledex import Session, MujocoHandler
+import teledex
 
-session = Session()
+session = teledex.Session()
 
-mujoco_handler = MujocoHandler(model=my_model, data=my_data)
+mujoco_handler = teledex.MujocoHandler(model=my_model, data=my_data)
 session.add_handler(mujoco_handler)
 
 mujoco_handler.link_body(name="eef_target")
