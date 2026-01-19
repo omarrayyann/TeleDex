@@ -2,7 +2,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/teledex)](https://pypi.org/project/teledex/) [![Downloads](https://static.pepy.tech/badge/mujoco_ar)](https://pepy.tech/project/mujoco_ar) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
 
-teledex is a plugin for [MuJoCo](https://github.com/google-deepmind/mujoco) that lets you control frames using your iOS/Android device's AR data.
+teledex lets you control robot frames using your iOS device's AR data.
 
 **MuJoCo Demos**
 
