@@ -1,6 +1,6 @@
 # <img src="https://github.com/user-attachments/assets/9b731c7f-7ad1-4607-90aa-f6ff1830a936" width="50" align="center" alt="Logo">&nbsp;&nbsp;Teledex
 
-[![PyPI version](https://img.shields.io/pypi/v/teledex)](https://pypi.org/project/teledex/) [![Downloads](https://static.pepy.tech/badge/teledex)](https://pepy.tech/project/teledex) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
+[![PyPI version](https://img.shields.io/pypi/v/teledex)](https://pypi.org/project/teledex/) [![Downloads](https://static.pepy.tech/badge/mujoco_ar)](https://pepy.tech/project/mujoco_ar) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
 
 teledex is a plugin for [MuJoCo](https://github.com/google-deepmind/mujoco) that lets you control frames using your iOS/Android device's AR data.
 
@@ -154,31 +154,6 @@ connector.reset_position() # Resets the current position as the origin (0,0,0).
 
 - Yes, check the [Flexible Setup](#flexible-setup-works-without-mujoco) out where you can retrive the pure ARKit position and rotation and use it as you wish. You wouldn't need to pass in the MuJoCo model and data in such a case.
 
-## How to contribute?
-
-Report any bugs you encounter to the issue tracker. Also, feel free to suggest any features. Those could be regarding the app (iOS/Android apps) or the python package.
-
-## Acknowledgements
-
-- Thanks to [@Lr-2002](https://www.github.com/Lr-2002) for creating an [Android app](https://github.com/Lr-2002/arcore-android-sdk/tree/main?tab=readme-ov-file) that works with the package.
-- Thanks to  [@kevinzakka](https://www.github.com/kevinzakka) for the [mink](https://github.com/kevinzakka/mink) and [mjctrl](https://github.com/kevinzakka/mjctrl) libraries, which are used in the provided demos.
-
 ## Citation
 
 If you use teledex in your research, please cite it as follows:
-
-```bibtex
-@software{rayyan2024teledex,
-  author       = {Rayyan, Omar},
-  title        = {{Teledex}: Phone Teleoperation for Robots},
-  version      = {1.3.0},
-  year         = {2024},
-  month        = sep,
-  doi          = {10.5281/zenodo.17111581},
-  url          = {https://github.com/omarrayyann/teledex},
-  license      = {MIT},
-}
-```
-
-
-
