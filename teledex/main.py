@@ -10,13 +10,14 @@ import mujoco
 import warnings
 import platform
 import subprocess
+from scipy.spatial.transform import Rotation as R
 
-class TeledexConnector:
+class Session:
     """
     A connector to receive position and rotation data from a connected application.
     """
 
-    def __init__(self, mujoco_model=None, mujoco_data=None, port=8888, debug=False):
+    def __init__(self, mujoco_model=None, mujoco_data=None, port=8888, debug=False, hand_transformation=np.eye(4)):
         """
         Initialize the connector with the given port and other parameters.
 
@@ -25,17 +26,22 @@ class TeledexConnector:
             mujoco_model: The MuJoCo model object.
             mujoco_data: The MuJoCo data object.
             debug (bool): Enable debug mode for verbose output.
+            hand_transformation (numpy array): Optional 4x4 transformation matrix from phone to hand. If provided, 
+                                              computes and returns hand pose in latest_data.
         """
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
+        s.connect(("127.0.0.1", 80))
         self.ip_address = s.getsockname()[0]
         self.port = port
+        self.hand_transformation = np.array(hand_transformation)
         self.latest_data = {
             "rotation": None,
             "position": None,
             "finger_angles": None,
             "button": None,
             "toggle": None,
+            "position_hand": None,
+            "rotation_hand": None,
         }
         self.server = None
         self.ping_interval = 20000000000
@@ -63,12 +69,12 @@ class TeledexConnector:
             self.server.close()
             await self.server.wait_closed()
             self.server = None
-            print("[INFO] TeledexConnector Stopped")
+            print("[INFO] Session Stopped")
             asyncio.get_running_loop().stop()
 
     def stop(self):
         """
-        Stop the TeledexConnector: shut down the server, then join the thread.
+        Stop the Session: shut down the server, then join the thread.
         """
         self.loop.call_soon_threadsafe(
             lambda: asyncio.create_task(self._stop_server())
@@ -176,18 +182,29 @@ class TeledexConnector:
                         self.latest_data["button"] = data.get('button', False)
                         self.latest_data["toggle"] = data.get('toggle', False)
                     
+                        T_phone_hand = np.eye(4)
+                        T_phone_hand[:3, :3] = R.from_euler('z', 180, degrees=True).as_matrix()
+                        T_phone_hand[:3, 3] = np.array([0.0, 0.0, 0.26])
+                        
+                        T_world_phone = np.eye(4)
+                        T_world_phone[:3, :3] = self.latest_data["rotation"].reshape(3, 3)
+                        T_world_phone[:3, 3] = self.latest_data["position"]
+                        
+                        T_world_hand = np.linalg.inv(T_phone_hand) @ T_world_phone
+                        T_world_hand = T_world_phone @ T_phone_hand
+
+                        
+                        self.latest_data["position_hand"] = T_world_hand[:3, 3]
+                        self.latest_data["rotation_hand"] = T_world_hand[:3, :3].flatten()
+
+                        print(self.latest_data["position_hand"])
+                    
                         for linked_frame in self.linked_frames:
                             linked_frame.update(self.mujoco_model, self.mujoco_data, self.latest_data.copy())
                             if linked_frame.vibrate_fn is not None and linked_frame.vibrate_fn():
                                 self.vibrate(duration=0.01, intensity=1.0, sharpness=0.5)
-                    if 'finger_angles' in data:
-                        self.latest_data["finger_angles"] = {
-                            "thumb": data['finger_angles'][0],
-                            "index": data['finger_angles'][1],
-                            "middle": data['finger_angles'][2],
-                            "ring": data['finger_angles'][3],
-                            "pinky": data['finger_angles'][4],
-                        }
+                    if 'landmarks' in data:
+                        self.latest_data["landmarks"] = np.array(data["landmarks"])
                     if self.debug:
                         print(f"[DATA] Rotation: {self.latest_data['rotation']}, Position: {self.latest_data['position']}, Button: {self.latest_data['button']}, Toggle: {self.latest_data['toggle']}")
         except websockets.ConnectionClosed as e:
@@ -216,9 +233,9 @@ class TeledexConnector:
             self._kill_process_using_port(self.port)
             await asyncio.sleep(0.1)
             try:
-                print(f"[INFO] TeledexConnector Starting on port {self.port}...")
+                print(f"[INFO] Session Starting on port {self.port}...")
                 self.server = await websockets.serve(self._handle_connection, "0.0.0.0", self.port,ping_interval=self.ping_interval,ping_timeout=self.ping_timeout)
-                print(f"[INFO] TeledexConnector Started. Details: \n[INFO] IP Address: {self.ip_address}\n[INFO] Port: {self.port}\n[INFO] Waiting for a device to connect...")
+                print(f"[INFO] Session Started. Details: \n[INFO] IP Address: {self.ip_address}\n[INFO] Port: {self.port}\n[INFO] Waiting for a device to connect...")
 
                 break  # Exit the loop if server starts successfully
             except OSError as e:
@@ -233,7 +250,7 @@ class TeledexConnector:
         
     def start(self):
         """
-        Start the TeledexConnector.
+        Start the Session.
         """
         self.loop = asyncio.new_event_loop()
         self._thread = threading.Thread(target=self._run_event_loop, daemon=True)

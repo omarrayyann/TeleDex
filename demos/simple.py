@@ -1,6 +1,6 @@
 import mujoco
 import mujoco.viewer
-from teledex import TeledexConnector
+from teledex import Session
 import random
 
 def main():
@@ -11,7 +11,7 @@ def main():
     target_site_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "target")
 
     # Teledex Setup
-    teledex = TeledexConnector(mujoco_model=model, mujoco_data=data)
+    teledex = Session(mujoco_model=model, mujoco_data=data)
     
 
     def button_press():

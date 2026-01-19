@@ -27,10 +27,10 @@ This guide explains how to run Teledex for retrieving pose data directly from yo
 Create a connection between your Python program and the iOS device.
 
 ```python
-from teledex import TeledexConnector
+from teledex import Session
 
 # Initialize the connector
-connector = TeledexConnector(port=8888, debug=False)  # Customize the port if necessary
+connector = Session(port=8888, debug=False)  # Customize the port if necessary
 ```
 
 ---

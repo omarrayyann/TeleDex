@@ -71,10 +71,10 @@ You can download the app from the [App Store](https://apps.apple.com/ae/app/mujo
 This setup allows you to directly control a MuJoCo frame (body, geom, or site), with the frame's position and orientation matching the ARKit data received from the connected iOS device.
 
 ```python
-from teledex import TeledexConnector
+from teledex import Session
 
 # Initialize the connector with your desired parameters
-mj_ar = TeledexConnector(mujoco_model=my_model,mujoco_data=my_data)
+mj_ar = Session(mujoco_model=my_model,mujoco_data=my_data)
 
 # Link a MuJoCo frame (link_body(), link_geom() or link_site())
 mj_ar.link_body(name="eef_target")
@@ -87,10 +87,10 @@ mj_ar.start()
 In addition to what the quick setup allows you to do, this setup allows you to automate the applying of a translation, rotation or scaling of the recieved pose. Additionally, you can pass functions to button_fn and toggle_fn to be triggered when the button or toggle are activated
 
 ```python
-from teledex import TeledexConnector
+from teledex import Session
 
 # Initialize the connector with your desired parameters
-mj_ar = TeledexConnector(
+mj_ar = Session(
     mujoco_model=my_model, 
     mujoco_data=my_data, 
     port=8888,                                           # Optional, defaults to 8888 if not provided
@@ -118,10 +118,10 @@ mj_ar.start()
 You can retrieve the ARKit data including the position, rotation, button, and toggle states directly from a connected iOS device, making it flexible for usage in various applications beyond physics simulations. Try running ```mjpython demos/flexible_setup.py```.
 
 ```python
-from teledex import TeledexConnector
+from teledex import Session
 
 # Initialize the connector with your desired parameters
-connector = TeledexConnector()
+connector = Session()
 
 # Start the connector
 connector.start()

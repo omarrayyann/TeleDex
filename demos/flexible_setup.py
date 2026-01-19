@@ -1,6 +1,6 @@
-from teledex import TeledexConnector
+from teledex import Session
 
-connector = TeledexConnector()
+connector = Session()
 connector.start()
 
 while True:

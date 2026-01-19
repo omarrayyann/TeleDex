@@ -1,1 +1,1 @@
-from .connector import TeledexConnector
+from .connector import Session
