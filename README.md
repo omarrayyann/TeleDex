@@ -1,4 +1,4 @@
-# <img src="https://github.com/user-attachments/assets/9b731c7f-7ad1-4607-90aa-f6ff1830a936" width="50" align="center" alt="Logo">&nbsp;&nbsp;Teledex
+# <img src="https://github.com/user-attachments/assets/675688bc-40a7-46bc-8d0d-e73f7dca6e06" width="75" align="center" alt="Logo">&nbsp;&nbsp;Teledex
 
 [![PyPI version](https://img.shields.io/pypi/v/teledex)](https://pypi.org/project/teledex/) [![Downloads](https://static.pepy.tech/badge/mujoco_ar)](https://pepy.tech/project/mujoco_ar) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
 
