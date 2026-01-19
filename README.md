@@ -4,11 +4,6 @@
 
 teledex is a plugin for [MuJoCo](https://github.com/google-deepmind/mujoco) that lets you control frames using your iOS/Android device's AR data.
 
-**Recent Updates**
-
--  Android support thanks to [@Lr-2002](https://github.com/Lr-2002/arcore-android-sdk)'s contribution.
-- Trigger vibrations on your iOS device for haptic feedback.
-
 **MuJoCo Demos**
 
 <table>
