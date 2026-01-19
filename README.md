@@ -66,86 +66,46 @@ You can download the app from the [App Store](https://apps.apple.com/ae/app/mujo
 
 ## Usage
 
-### Quick MuJoCo Setup
+### Basic Setup
 
-This setup allows you to directly control a MuJoCo frame (body, geom, or site), with the frame's position and orientation matching the ARKit data received from the connected iOS device.
-
-```python
-from teledex import Session, MujocoHandler
-
-# Initialize the session
-session = Session()
-
-# Add MuJoCo handler
-mujoco_handler = MujocoHandler(model=my_model, data=my_data)
-session.add_handler(mujoco_handler)
-
-# Link a MuJoCo frame (link_body(), link_geom() or link_site())
-mujoco_handler.link_body(name="eef_target")
-
-# Start the session
-session.start()
-```
-### Full MuJoCo Setup
-
-In addition to what the quick setup allows you to do, this setup allows you to automate the applying of a translation, rotation or scaling of the recieved pose. Additionally, you can pass functions to button_fn and toggle_fn to be triggered when the button or toggle are activated
-
-```python
-from teledex import Session, MujocoHandler
-
-# Initialize the session
-session = Session(
-    port=8888,       # Optional, defaults to 8888
-    debug=False      # Optional, defaults to False
-)
-
-# Add MuJoCo handler
-mujoco_handler = MujocoHandler(model=my_model, data=my_data)
-session.add_handler(mujoco_handler)
-
-# Link a MuJoCo frame (link_body(), link_geom() or link_site())
-mujoco_handler.link_body(
-    name="eef_target",
-    scale=1.0,                                           # Optional, defaults to 1.0 if not provided
-    position_origin=np.array([0.0, 0.0, 0.0]),           # Optional, defaults to [0, 0, 0] if not provided
-    rotation_origin=np.identity(3),                      # Optional, defaults to I(3) if not provided
-    toggle_fn=my_toggle_function,                        # Optional, calls nothing if not provided
-    button_fn=my_button_function,                        # Optional, calls nothing if not provided
-    disable_pos=False,                                   # Optional, defaults to False if not provided
-    disable_rot=False                                    # Optional, defaults to False if not provided
-)
-
-# Start the session
-session.start()
-```
-
-### Flexible Setup (works without MuJoCo):
-
-You can retrieve the ARKit data including the position, rotation, button, and toggle states directly from a connected iOS device, making it flexible for usage in various applications beyond physics simulations. Try running ```mjpython demos/flexible_setup.py```.
+Stream AR pose data from your phone to any application:
 
 ```python
 from teledex import Session
 
-# Initialize the session
 session = Session()
-
-# Start the session
 session.start()
 
-# Retrieve the latest AR data (after connecting the iOS device, see the guide below)
-data = session.get_latest_data()  # Returns {"position": (3,), "rotation": (3, 3), "button": bool, "toggle": bool}
+# Retrieve the latest AR data
+data = session.get_latest_data()  # {"position": (3,), "rotation": (3, 3), "button": bool, "toggle": bool}
+```
+
+### MuJoCo Setup
+
+Control MuJoCo frames (body, geom, or site) with AR data:
+
+```python
+from teledex import Session, MujocoHandler
+
+session = Session()
+
+mujoco_handler = MujocoHandler(model=my_model, data=my_data)
+session.add_handler(mujoco_handler)
+
+mujoco_handler.link_body(name="eef_target")
+
+session.start()
 ```
 
 ### Custom Handlers
 
-You can create your own handlers to process AR data for any application:
+Create your own handlers to process AR data:
 
 ```python
 from teledex import Session
 
 class MyHandler:
     def update(self, session, data):
-        # Process AR data here
         print(f"Position: {data['position']}")
         return False  # Return True to trigger vibration
 
@@ -154,8 +114,6 @@ session.add_handler(MyHandler())
 
 # Or use callbacks
 session.on_update(lambda s, data: print(data['position']))
-session.on_connect(lambda s: print("Device connected!"))
-session.on_disconnect(lambda s: print("Device disconnected!"))
 
 session.start()
 ```
@@ -167,17 +125,3 @@ session.pause_updates()  # Temporarily stops receiving updates from the connecte
 session.resume_updates() # Resumes receiving updates from the connected device.
 session.reset_position() # Resets the current position as the origin (0,0,0).
 ```
-
-## FAQ
-
-#### How can I reduce latency?
-
-- If you're experiencing latency, try connecting your PC to your device's hotspot. This should significantly reduce latency if you're far from a router since the communication happens locally via WebSockets.
-  
-#### Can I use it for a non-MuJoCo application?
-
-- Yes, check the [Flexible Setup](#flexible-setup-works-without-mujoco) out where you can retrive the pure ARKit position and rotation and use it as you wish. You wouldn't need to pass in the MuJoCo model and data in such a case.
-
-## Citation
-
-If you use teledex in your research, please cite it as follows:
