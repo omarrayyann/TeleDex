@@ -75,7 +75,8 @@ session = Session()
 session.start()
 
 # Retrieve the latest AR data
-data = session.get_latest_data()  # {"position": (3,), "rotation": (3, 3), "button": bool, "toggle": bool}
+data = session.get_latest_data()
+# {"position": (3,), "rotation": (3, 3), "button": bool, "toggle": bool}
 ```
 
 ### MuJoCo Setup
