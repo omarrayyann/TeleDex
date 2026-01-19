@@ -97,28 +97,6 @@ mujoco_handler.link_body(name="eef_target")
 session.start()
 ```
 
-### Custom Handlers
-
-Create your own handlers to process AR data:
-
-```python
-from teledex import Session
-
-class LoggingHandler:
-    def __init__(self):
-        self.positions = []
-    
-    def update(self, session, data):
-        if data['position'] is not None:
-            self.positions.append(data['position'].copy())
-        if data['button']:
-            session.vibrate()
-        return False
-
-session = Session()
-session.add_handler(LoggingHandler())
-session.start()
-```
 ## Additional Functions
 
 ```python
