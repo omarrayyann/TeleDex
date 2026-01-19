@@ -4,56 +4,6 @@
 
 teledex lets you control robot frames using your iOS device's AR data.
 
-**MuJoCo Demos**
-
-<table>
-  <tr>
-    <th colspan="4">
-         Position Control
-      </th>
-  </tr>
-  <tr>
-    <th colspan="2">
-          <a href="https://github.com/omarrayyann/mujoco_fruit_picking" target="_blank">MuJoCo Fruits Pick and Place</a>
-      </th>
-      <th colspan="2">
-          <a href="https://github.com/omarrayyann/mujoco_pusht" target="_blank">MuJoCo PushT</a>
-      </th>
-  </tr>
-  <tr>
-    <td><img src="https://github.com/user-attachments/assets/3d496ce1-0b5d-4a1f-a6d2-dc2e19d1e3d8"  /></td>
-    <td><img src="https://github.com/user-attachments/assets/8fd2b0ae-f90a-4df5-b114-3feac7c87e37" /></td>
-    <td><img src="https://github.com/user-attachments/assets/c1e927c5-a4af-4c95-a6d0-fe7f8a026c34"  /></td>
-    <td><img src="https://github.com/user-attachments/assets/a58ed764-4e05-40a5-b26a-5bd896584f34"/></td>
-  </tr>
-  <tr>
-    <th colspan="4">
-         Position and Rotation Control
-      </th>
-  </tr>
-   <tr>
-    <th colspan="2">
-          <a href="https://github.com/omarrayyann/mujoco_study_desk" target="_blank">MuJoCo Study Desk</a>
-      </th>
-      <th colspan="2">
-          <a href="https://github.com/omarrayyann/mujoco_blocks_stacking" target="_blank">MuJoCo Blocks Stacking</a>
-      </th>
-  </tr>
-  <tr>
-    <td><img src="https://github.com/user-attachments/assets/e70569ce-5ade-4161-95ab-007b1d612e0a"  /></td>
-    <td><img src="https://github.com/user-attachments/assets/88635d5e-63f3-41b3-af83-3af03588c84f"  /></td>
-    <td><img src="https://github.com/user-attachments/assets/dbb1dbb7-5dff-4c24-88fb-9f4b8afd7d8b"  /></td>
-    <td><img src="https://github.com/user-attachments/assets/df43bb40-6e58-4e94-8d1c-a4fa90359d65"  /></td>
-  </tr>
-</table>
-
-
-**Real Demo**
-
-![1127(3)](https://github.com/user-attachments/assets/9b738682-6c7c-4aad-bf5d-de39bd114780)
-
-Examples of Teledex linked to the end-effectors of multiple manipulators can be found in this fork of [Mink](https://github.com/omarrayyann/mink-teledex). 
-
 ## Installation
 
 You can install teledex package using pip:
