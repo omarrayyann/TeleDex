@@ -12,7 +12,7 @@ You can install teledex package using pip:
 pip install teledex
 ```
 
-You can download the app from the [App Store](https://apps.apple.com/ae/app/mujoco-ar/id6612039501) for iOS devices or [here](https://github.com/Lr-2002/arcore-android-sdk/tree/main?tab=readme-ov-file) for Android devices.
+You can download the app from the [App Store](https://apps.apple.com/ae/app/mujoco-ar/id6612039501).
 
 ## Usage
 
