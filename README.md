@@ -104,17 +104,19 @@ Create your own handlers to process AR data:
 ```python
 from teledex import Session
 
-class MyHandler:
+class LoggingHandler:
+    def __init__(self):
+        self.positions = []
+    
     def update(self, session, data):
-        print(f"Position: {data['position']}")
-        return False  # Return True to trigger vibration
+        if data['position'] is not None:
+            self.positions.append(data['position'].copy())
+        if data['button']:
+            session.vibrate()
+        return False
 
 session = Session()
-session.add_handler(MyHandler())
-
-# Or use callbacks
-session.on_update(lambda s, data: print(data['position']))
-
+session.add_handler(LoggingHandler())
 session.start()
 ```
 ## Additional Functions
