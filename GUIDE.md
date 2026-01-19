@@ -1,6 +1,6 @@
 # Simple Phone Pose Retrieval Setup (Teleop)
 
-This guide explains how to run MuJoCoAR for retrieving pose data directly from your iOS device without requiring MuJoCo. Follow the steps below to set it up and get started in a few minutes.
+This guide explains how to run Teledex for retrieving pose data directly from your iOS device without requiring MuJoCo. Follow the steps below to set it up and get started in a few minutes.
 
 ![1127(3)](https://github.com/user-attachments/assets/77587d66-b9c7-4f0e-b7ae-97da8e7719f4)
 
@@ -12,10 +12,10 @@ This guide explains how to run MuJoCoAR for retrieving pose data directly from y
    Install the MuJoCo AR app from the App Store [here](https://apps.apple.com/ae/app/mujoco-ar/id6612039501).
 
 2. **Install the Python Package:**  
-   Run the following command to install the MuJoCo AR Python package:
+   Run the following command to install the Teledex Python package:
 
    ```bash
-   pip install mujoco_ar
+   pip install teledex
    ```
 
 ---
@@ -27,10 +27,10 @@ This guide explains how to run MuJoCoAR for retrieving pose data directly from y
 Create a connection between your Python program and the iOS device.
 
 ```python
-from mujoco_ar import MujocoARConnector
+from teledex import TeledexConnector
 
 # Initialize the connector
-connector = MujocoARConnector(port=8888, debug=False)  # Customize the port if necessary
+connector = TeledexConnector(port=8888, debug=False)  # Customize the port if necessary
 ```
 
 ---

@@ -1,6 +1,6 @@
-from mujoco_ar import MujocoARConnector
+from teledex import TeledexConnector
 
-connector = MujocoARConnector()
+connector = TeledexConnector()
 connector.start()
 
 while True:

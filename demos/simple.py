@@ -1,6 +1,6 @@
 import mujoco
 import mujoco.viewer
-from mujoco_ar import MujocoARConnector
+from teledex import TeledexConnector
 import random
 
 def main():
@@ -10,8 +10,8 @@ def main():
     data = mujoco.MjData(model)
     target_site_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "target")
 
-    # MuJoCo AR Setup
-    mujocoAR = MujocoARConnector(mujoco_model=model, mujoco_data=data)
+    # Teledex Setup
+    teledex = TeledexConnector(mujoco_model=model, mujoco_data=data)
     
 
     def button_press():
@@ -24,7 +24,7 @@ def main():
             model.site_size[target_site_id][0] = 0.05
 
     # Linking the target site with the AR position
-    mujocoAR.link_site(
+    teledex.link_site(
         name="target",
         scale=3.0,
         position_origin=[0.0, 0.0, 0.2],
@@ -39,8 +39,8 @@ def main():
         toggle_fn=toggle_press,
     )
 
-    # Start MuJoCo
-    mujocoAR.start()
+    # Start Teledex
+    teledex.start()
 
     try:
         with mujoco.viewer.launch_passive(model, data, show_left_ui=False, show_right_ui=False) as viewer:
@@ -48,7 +48,7 @@ def main():
                 mujoco.mj_step(model, data)
                 viewer.sync()
     except KeyboardInterrupt:
-        mujocoAR.stop()
+        teledex.stop()
 
 if __name__ == "__main__":
     main()

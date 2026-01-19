@@ -11,7 +11,7 @@ import warnings
 import platform
 import subprocess
 
-class MujocoARConnector:
+class TeledexConnector:
     """
     A connector to receive position and rotation data from a connected application.
     """
@@ -63,12 +63,12 @@ class MujocoARConnector:
             self.server.close()
             await self.server.wait_closed()
             self.server = None
-            print("[INFO] MujocoARConnector Stopped")
+            print("[INFO] TeledexConnector Stopped")
             asyncio.get_running_loop().stop()
 
     def stop(self):
         """
-        Stop the MujocoARConnector: shut down the server, then join the thread.
+        Stop the TeledexConnector: shut down the server, then join the thread.
         """
         self.loop.call_soon_threadsafe(
             lambda: asyncio.create_task(self._stop_server())
@@ -216,9 +216,9 @@ class MujocoARConnector:
             self._kill_process_using_port(self.port)
             await asyncio.sleep(0.1)
             try:
-                print(f"[INFO] MujocoARConnector Starting on port {self.port}...")
+                print(f"[INFO] TeledexConnector Starting on port {self.port}...")
                 self.server = await websockets.serve(self._handle_connection, "0.0.0.0", self.port,ping_interval=self.ping_interval,ping_timeout=self.ping_timeout)
-                print(f"[INFO] MujocoARConnector Started. Details: \n[INFO] IP Address: {self.ip_address}\n[INFO] Port: {self.port}\n[INFO] Waiting for a device to connect...")
+                print(f"[INFO] TeledexConnector Started. Details: \n[INFO] IP Address: {self.ip_address}\n[INFO] Port: {self.port}\n[INFO] Waiting for a device to connect...")
 
                 break  # Exit the loop if server starts successfully
             except OSError as e:
@@ -233,7 +233,7 @@ class MujocoARConnector:
         
     def start(self):
         """
-        Start the MujocoARConnector.
+        Start the TeledexConnector.
         """
         self.loop = asyncio.new_event_loop()
         self._thread = threading.Thread(target=self._run_event_loop, daemon=True)

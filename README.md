@@ -1,13 +1,13 @@
-# <img src="https://github.com/user-attachments/assets/9b731c7f-7ad1-4607-90aa-f6ff1830a936" width="50" align="center" alt="Logo">&nbsp;&nbsp;MuJoCo AR
+# <img src="https://github.com/user-attachments/assets/9b731c7f-7ad1-4607-90aa-f6ff1830a936" width="50" align="center" alt="Logo">&nbsp;&nbsp;Teledex
 
-[![PyPI version](https://img.shields.io/pypi/v/mujoco_ar)](https://pypi.org/project/mujoco_ar/) [![Downloads](https://static.pepy.tech/badge/mujoco_ar)](https://pepy.tech/project/mujoco_ar) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
+[![PyPI version](https://img.shields.io/pypi/v/teledex)](https://pypi.org/project/teledex/) [![Downloads](https://static.pepy.tech/badge/teledex)](https://pepy.tech/project/teledex) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
 
-mujoco_ar is a plugin for [MuJoCo](https://github.com/google-deepmind/mujoco) that lets you control frames using your iOS/Android device's AR data.
+teledex is a plugin for [MuJoCo](https://github.com/google-deepmind/mujoco) that lets you control frames using your iOS/Android device's AR data.
 
 **Recent Updates**
 
 -  Android support thanks to [@Lr-2002](https://github.com/Lr-2002/arcore-android-sdk)'s contribution.
-- Trigger vibrations on your iOS device for haptic feedback ([release log](https://github.com/omarrayyann/MujocoAR/releases/tag/v1.2.0)).
+- Trigger vibrations on your iOS device for haptic feedback.
 
 **MuJoCo Demos**
 
@@ -57,14 +57,14 @@ mujoco_ar is a plugin for [MuJoCo](https://github.com/google-deepmind/mujoco) th
 
 ![1127(3)](https://github.com/user-attachments/assets/9b738682-6c7c-4aad-bf5d-de39bd114780)
 
-Examples of MuJoCo AR linked to the end-effectors of multiple manipulators can be found in this fork of [Mink](https://github.com/omarrayyann/mink-mujocoAR). 
+Examples of Teledex linked to the end-effectors of multiple manipulators can be found in this fork of [Mink](https://github.com/omarrayyann/mink-teledex). 
 
 ## Installation
 
-You can install mujoco_ar package using pip:
+You can install teledex package using pip:
 
 ```bash
-pip install mujoco_ar
+pip install teledex
 ```
 
 You can download the app from the [App Store](https://apps.apple.com/ae/app/mujoco-ar/id6612039501) for iOS devices or [here](https://github.com/Lr-2002/arcore-android-sdk/tree/main?tab=readme-ov-file) for Android devices.
@@ -76,10 +76,10 @@ You can download the app from the [App Store](https://apps.apple.com/ae/app/mujo
 This setup allows you to directly control a MuJoCo frame (body, geom, or site), with the frame's position and orientation matching the ARKit data received from the connected iOS device.
 
 ```python
-from mujoco_ar import MujocoARConnector
+from teledex import TeledexConnector
 
 # Initialize the connector with your desired parameters
-mj_ar = MujocoARConnector(mujoco_model=my_model,mujoco_data=my_data)
+mj_ar = TeledexConnector(mujoco_model=my_model,mujoco_data=my_data)
 
 # Link a MuJoCo frame (link_body(), link_geom() or link_site())
 mj_ar.link_body(name="eef_target")
@@ -92,10 +92,10 @@ mj_ar.start()
 In addition to what the quick setup allows you to do, this setup allows you to automate the applying of a translation, rotation or scaling of the recieved pose. Additionally, you can pass functions to button_fn and toggle_fn to be triggered when the button or toggle are activated
 
 ```python
-from mujoco_ar import MujocoARConnector
+from teledex import TeledexConnector
 
 # Initialize the connector with your desired parameters
-mj_ar = MujocoARConnector(
+mj_ar = TeledexConnector(
     mujoco_model=my_model, 
     mujoco_data=my_data, 
     port=8888,                                           # Optional, defaults to 8888 if not provided
@@ -123,10 +123,10 @@ mj_ar.start()
 You can retrieve the ARKit data including the position, rotation, button, and toggle states directly from a connected iOS device, making it flexible for usage in various applications beyond physics simulations. Try running ```mjpython demos/flexible_setup.py```.
 
 ```python
-from mujoco_ar import MujocoARConnector
+from teledex import TeledexConnector
 
 # Initialize the connector with your desired parameters
-connector = MujocoARConnector()
+connector = TeledexConnector()
 
 # Start the connector
 connector.start()
@@ -156,7 +156,7 @@ connector.reset_position() # Resets the current position as the origin (0,0,0).
 
 ## How to contribute?
 
-Report any bugs you encounter to the [issue tracker](https://github.com/omarrayyann/MujocoAR/issues). Also, feel free to suggest any features. Those could be regarding the app ([iOS swift code](https://github.com/omarrayyann/MujocoAR-iOS-App)) or the python package.
+Report any bugs you encounter to the issue tracker. Also, feel free to suggest any features. Those could be regarding the app (iOS/Android apps) or the python package.
 
 ## Acknowledgements
 
@@ -165,17 +165,17 @@ Report any bugs you encounter to the [issue tracker](https://github.com/omarrayy
 
 ## Citation
 
-If you use mujoco_ar in your research, please cite it as follows:
+If you use teledex in your research, please cite it as follows:
 
 ```bibtex
-@software{rayyan2024mujocoar,
+@software{rayyan2024teledex,
   author       = {Rayyan, Omar},
-  title        = {{MuJoCoAR}: Phone Teleoperation for Robots},
+  title        = {{Teledex}: Phone Teleoperation for Robots},
   version      = {1.3.0},
   year         = {2024},
   month        = sep,
   doi          = {10.5281/zenodo.17111581},
-  url          = {https://github.com/omarrayyann/mujocoar},
+  url          = {https://github.com/omarrayyann/teledex},
   license      = {MIT},
 }
 ```
