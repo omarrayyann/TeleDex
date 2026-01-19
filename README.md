@@ -98,8 +98,8 @@ session.start()
 ## Additional Functions
 
 ```python
-session.vibrate(sharpness=0.8, intensity=0.4, duration=0.01) # Trigger a vibration on the connected device
-session.pause_updates()  # Temporarily stops receiving updates from the connected device.
-session.resume_updates() # Resumes receiving updates from the connected device.
-session.reset_position() # Resets the current position as the origin (0,0,0).
+session.vibrate(sharpness=0.8, intensity=0.4, duration=0.01)
+session.pause_updates()
+session.resume_updates()
+session.reset_position()
 ```
