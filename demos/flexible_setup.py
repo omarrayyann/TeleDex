@@ -1,9 +1,9 @@
 from teledex import Session
 
-connector = Session()
-connector.start()
+session = Session()
+session.start()
 
 while True:
-    data = connector.get_latest_data()
+    data = session.get_latest_data()
     if data["position"] is not None:
         print(data)

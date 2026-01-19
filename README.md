@@ -71,34 +71,40 @@ You can download the app from the [App Store](https://apps.apple.com/ae/app/mujo
 This setup allows you to directly control a MuJoCo frame (body, geom, or site), with the frame's position and orientation matching the ARKit data received from the connected iOS device.
 
 ```python
-from teledex import Session
+from teledex import Session, MujocoHandler
 
-# Initialize the connector with your desired parameters
-mj_ar = Session(mujoco_model=my_model,mujoco_data=my_data)
+# Initialize the session
+session = Session()
+
+# Add MuJoCo handler
+mujoco_handler = MujocoHandler(model=my_model, data=my_data)
+session.add_handler(mujoco_handler)
 
 # Link a MuJoCo frame (link_body(), link_geom() or link_site())
-mj_ar.link_body(name="eef_target")
+mujoco_handler.link_body(name="eef_target")
 
-# Start the connector
-mj_ar.start()
+# Start the session
+session.start()
 ```
 ### Full MuJoCo Setup
 
 In addition to what the quick setup allows you to do, this setup allows you to automate the applying of a translation, rotation or scaling of the recieved pose. Additionally, you can pass functions to button_fn and toggle_fn to be triggered when the button or toggle are activated
 
 ```python
-from teledex import Session
+from teledex import Session, MujocoHandler
 
-# Initialize the connector with your desired parameters
-mj_ar = Session(
-    mujoco_model=my_model, 
-    mujoco_data=my_data, 
-    port=8888,                                           # Optional, defaults to 8888 if not provided
-    debug=False                                          # Optional, defaults to False if not provided
+# Initialize the session
+session = Session(
+    port=8888,       # Optional, defaults to 8888
+    debug=False      # Optional, defaults to False
 )
 
+# Add MuJoCo handler
+mujoco_handler = MujocoHandler(model=my_model, data=my_data)
+session.add_handler(mujoco_handler)
+
 # Link a MuJoCo frame (link_body(), link_geom() or link_site())
-mj_ar.link_body(
+mujoco_handler.link_body(
     name="eef_target",
     scale=1.0,                                           # Optional, defaults to 1.0 if not provided
     position_origin=np.array([0.0, 0.0, 0.0]),           # Optional, defaults to [0, 0, 0] if not provided
@@ -109,8 +115,8 @@ mj_ar.link_body(
     disable_rot=False                                    # Optional, defaults to False if not provided
 )
 
-# Start the connector
-mj_ar.start()
+# Start the session
+session.start()
 ```
 
 ### Flexible Setup (works without MuJoCo):
@@ -120,23 +126,46 @@ You can retrieve the ARKit data including the position, rotation, button, and to
 ```python
 from teledex import Session
 
-# Initialize the connector with your desired parameters
-connector = Session()
+# Initialize the session
+session = Session()
 
-# Start the connector
-connector.start()
+# Start the session
+session.start()
 
 # Retrieve the latest AR data (after connecting the iOS device, see the guide below)
-data = connector.get_latest_data()  # Returns {"position": (3, 1), "rotation": (3, 3), "button": bool, "toggle": bool}
+data = session.get_latest_data()  # Returns {"position": (3,), "rotation": (3, 3), "button": bool, "toggle": bool}
+```
+
+### Custom Handlers
+
+You can create your own handlers to process AR data for any application:
+
+```python
+from teledex import Session
+
+class MyHandler:
+    def update(self, session, data):
+        # Process AR data here
+        print(f"Position: {data['position']}")
+        return False  # Return True to trigger vibration
+
+session = Session()
+session.add_handler(MyHandler())
+
+# Or use callbacks
+session.on_update(lambda s, data: print(data['position']))
+session.on_connect(lambda s: print("Device connected!"))
+session.on_disconnect(lambda s: print("Device disconnected!"))
+
+session.start()
 ```
 ## Additional Functions
 
 ```python
-connector.vibrate(sharpness=0.8, intensity=0.4, duration=0.01) # Trigger a vibration on the connected device
-connector.pause_updates()  # Temporarily stops receiving updates from the connected device.
-connector.resume_updates() # Resumes receiving updates from the connected device.
-connector.reset_position() # Resets the current position as the origin (0,0,0).
-
+session.vibrate(sharpness=0.8, intensity=0.4, duration=0.01) # Trigger a vibration on the connected device
+session.pause_updates()  # Temporarily stops receiving updates from the connected device.
+session.resume_updates() # Resumes receiving updates from the connected device.
+session.reset_position() # Resets the current position as the origin (0,0,0).
 ```
 
 ## FAQ

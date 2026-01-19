@@ -6,28 +6,25 @@ import os
 import signal
 import socket
 import threading
-import mujoco
-import warnings
 import platform
 import subprocess
 from scipy.spatial.transform import Rotation as R
 
+
 class Session:
     """
-    A connector to receive position and rotation data from a connected application.
+    A connector to receive position and rotation data from a connected AR application.
+    Supports modular handlers that get called on each data update.
     """
 
-    def __init__(self, mujoco_model=None, mujoco_data=None, port=8888, debug=False, hand_transformation=np.eye(4)):
+    def __init__(self, port=8888, debug=False, hand_transformation=np.eye(4)):
         """
-        Initialize the connector with the given port and other parameters.
+        Initialize the session.
 
         Args:
             port (int): The port on which the connector listens.
-            mujoco_model: The MuJoCo model object.
-            mujoco_data: The MuJoCo data object.
             debug (bool): Enable debug mode for verbose output.
-            hand_transformation (numpy array): Optional 4x4 transformation matrix from phone to hand. If provided, 
-                                              computes and returns hand pose in latest_data.
+            hand_transformation (numpy array): Optional 4x4 transformation matrix from phone to hand.
         """
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("127.0.0.1", 80))
@@ -42,18 +39,62 @@ class Session:
             "toggle": None,
             "position_hand": None,
             "rotation_hand": None,
+            "landmarks": None,
         }
         self.server = None
         self.ping_interval = 20000000000
         self.ping_timeout = 10000000000
         self.connected_clients = set()
         self.debug = debug
-        self.mujoco_model = mujoco_model
-        self.mujoco_data = mujoco_data
         self.reset_position_values = np.array([0.0, 0.0, 0.0])
         self.get_updates = True
-        self.linked_frames = []
         self.position_limits = None
+        
+        # Modular handler system
+        self._handlers = []
+        self._on_update_callbacks = []
+        self._on_connect_callbacks = []
+        self._on_disconnect_callbacks = []
+
+    def add_handler(self, handler):
+        """
+        Add a handler that will be updated on each data frame.
+        
+        Handlers should have an `update(session, data)` method that gets called
+        when new data arrives.
+        
+        Args:
+            handler: An object with an `update(session, data)` method.
+        """
+        self._handlers.append(handler)
+        return handler
+    
+    def on_update(self, callback):
+        """
+        Register a callback function to be called on each data update.
+        
+        Args:
+            callback: A function that takes (session, data) as arguments.
+        """
+        self._on_update_callbacks.append(callback)
+    
+    def on_connect(self, callback):
+        """
+        Register a callback function to be called when a device connects.
+        
+        Args:
+            callback: A function that takes (session) as argument.
+        """
+        self._on_connect_callbacks.append(callback)
+    
+    def on_disconnect(self, callback):
+        """
+        Register a callback function to be called when a device disconnects.
+        
+        Args:
+            callback: A function that takes (session) as argument.
+        """
+        self._on_disconnect_callbacks.append(callback)
 
     async def _stop_server(self):
         """
@@ -106,9 +147,6 @@ class Session:
     def _kill_process_using_port(self, port):
         """
         Kill the process using the given port on Unix-based systems.
-
-        Args:
-            port (int): The port to check for existing processes.
         """
         if platform.system() != "Windows":
             try:
@@ -140,88 +178,100 @@ class Session:
             except subprocess.CalledProcessError as e:
                 if self.debug:
                     print(f"[ERROR] Failed to kill process using port {port}: {e}")
+
+    def _process_data(self, data):
+        """
+        Process incoming data and update latest_data.
+        """
+        if 'rotation' in data and 'position' in data:
+            rotation = np.array(data['rotation'])
+            position = np.array(data['position'])
+            self.latest_data["rotation"] = rotation.T
+            self.latest_data["position"] = np.array([position[0], position[1], position[2]]).astype(float)
+            
+            if self.reset_position_values is not None and self.latest_data["position"].dtype == self.reset_position_values.dtype:
+                self.latest_data["position"] -= self.reset_position_values
+
+            if self.position_limits is not None:
+                self.latest_data["position"][0] = np.clip(
+                    self.latest_data["position"][0],
+                    self.position_limits[0][0],
+                    self.position_limits[0][1]
+                )
+                self.latest_data["position"][1] = np.clip(
+                    self.latest_data["position"][1],
+                    self.position_limits[1][0],
+                    self.position_limits[1][1]
+                )   
+                self.latest_data["position"][2] = np.clip(
+                    self.latest_data["position"][2],
+                    self.position_limits[2][0],
+                    self.position_limits[2][1]
+                )
+
+            self.latest_data["button"] = data.get('button', False)
+            self.latest_data["toggle"] = data.get('toggle', False)
+        
+            # Compute hand pose
+            T_phone_hand = np.eye(4)
+            T_phone_hand[:3, :3] = R.from_euler('z', 180, degrees=True).as_matrix()
+            T_phone_hand[:3, 3] = np.array([0.0, 0.0, 0.26])
+            
+            T_world_phone = np.eye(4)
+            T_world_phone[:3, :3] = self.latest_data["rotation"].reshape(3, 3)
+            T_world_phone[:3, 3] = self.latest_data["position"]
+            
+            T_world_hand = T_world_phone @ T_phone_hand
+            
+            self.latest_data["position_hand"] = T_world_hand[:3, 3]
+            self.latest_data["rotation_hand"] = T_world_hand[:3, :3].flatten()
+
+        if 'landmarks' in data:
+            self.latest_data["landmarks"] = np.array(data["landmarks"])
+
+    def _call_handlers(self):
+        """
+        Call all registered handlers and callbacks.
+        """
+        data_copy = self.latest_data.copy()
+        
+        # Call handlers
+        for handler in self._handlers:
+            should_vibrate = handler.update(self, data_copy)
+            if should_vibrate:
+                self.vibrate(duration=0.01, intensity=1.0, sharpness=0.5)
+        
+        # Call update callbacks
+        for callback in self._on_update_callbacks:
+            callback(self, data_copy)
             
     async def _handle_connection(self, websocket):
         """
         Handle incoming connections and messages from the application.
-
-        Args:
-            websocket: The WebSocket connection.
         """
         print("[INFO] Device connected successfully!")
         self.connected_clients.add(websocket)
+        
+        # Call connect callbacks
+        for callback in self._on_connect_callbacks:
+            callback(self)
+        
         try:
             async for message in websocket:
                 if self.get_updates:
                     data = json.loads(message)
-                    if 'rotation' in data and 'position' in data:
-                        rotation = np.array(data['rotation'])
-                        position = np.array(data['position'])
-                        self.latest_data["rotation"] = rotation.T
-                        self.latest_data["position"] = np.array([position[0],position[1],position[2]]).astype(float)
-                        if self.reset_position_values is not None and self.latest_data["position"].dtype == self.reset_position_values.dtype:
-                            self.latest_data["position"] -= self.reset_position_values
-
-                        if self.position_limits is not None:
-                            self.latest_data["position"][0] = np.clip(
-                                self.latest_data["position"][0],
-                                self.position_limits[0][0],
-                                self.position_limits[0][1]
-                            )
-                            self.latest_data["position"][1] = np.clip(
-                                self.latest_data["position"][1],
-                                self.position_limits[1][0],
-                                self.position_limits[1][1]
-                            )   
-                            self.latest_data["position"][2] = np.clip(
-                                self.latest_data["position"][2],
-                                self.position_limits[2][0],
-                                self.position_limits[2][1]
-                            )
-
-                        self.latest_data["button"] = data.get('button', False)
-                        self.latest_data["toggle"] = data.get('toggle', False)
+                    self._process_data(data)
+                    self._call_handlers()
                     
-                        T_phone_hand = np.eye(4)
-                        T_phone_hand[:3, :3] = R.from_euler('z', 180, degrees=True).as_matrix()
-                        T_phone_hand[:3, 3] = np.array([0.0, 0.0, 0.26])
-                        
-                        T_world_phone = np.eye(4)
-                        T_world_phone[:3, :3] = self.latest_data["rotation"].reshape(3, 3)
-                        T_world_phone[:3, 3] = self.latest_data["position"]
-                        
-                        T_world_hand = np.linalg.inv(T_phone_hand) @ T_world_phone
-                        T_world_hand = T_world_phone @ T_phone_hand
-
-                        
-                        self.latest_data["position_hand"] = T_world_hand[:3, 3]
-                        self.latest_data["rotation_hand"] = T_world_hand[:3, :3].flatten()
-
-                        print(self.latest_data["position_hand"])
-                    
-                        for linked_frame in self.linked_frames:
-                            linked_frame.update(self.mujoco_model, self.mujoco_data, self.latest_data.copy())
-                            if linked_frame.vibrate_fn is not None and linked_frame.vibrate_fn():
-                                self.vibrate(duration=0.01, intensity=1.0, sharpness=0.5)
-                    if 'landmarks' in data:
-                        self.latest_data["landmarks"] = np.array(data["landmarks"])
                     if self.debug:
                         print(f"[DATA] Rotation: {self.latest_data['rotation']}, Position: {self.latest_data['position']}, Button: {self.latest_data['button']}, Toggle: {self.latest_data['toggle']}")
         except websockets.ConnectionClosed as e:
             print(f"[INFO] Application disconnected: {e}")
         finally:
             self.connected_clients.remove(websocket)
-
-    def set_mujoco(self, mujoco_model, mujoco_data):
-        """
-        Set the MuJoCo model and data.
-
-        Args:
-            mujoco_model: The MuJoCo model object.
-            mujoco_data: The MuJoCo data object.
-        """
-        self.mujoco_model = mujoco_model
-        self.mujoco_data = mujoco_data
+            # Call disconnect callbacks
+            for callback in self._on_disconnect_callbacks:
+                callback(self)
 
     async def _start(self):
         """
@@ -234,18 +284,16 @@ class Session:
             await asyncio.sleep(0.1)
             try:
                 print(f"[INFO] Session Starting on port {self.port}...")
-                self.server = await websockets.serve(self._handle_connection, "0.0.0.0", self.port,ping_interval=self.ping_interval,ping_timeout=self.ping_timeout)
+                self.server = await websockets.serve(self._handle_connection, "0.0.0.0", self.port, ping_interval=self.ping_interval, ping_timeout=self.ping_timeout)
                 print(f"[INFO] Session Started. Details: \n[INFO] IP Address: {self.ip_address}\n[INFO] Port: {self.port}\n[INFO] Waiting for a device to connect...")
-
-                break  # Exit the loop if server starts successfully
+                break
             except OSError as e:
                 print(f"[WARNING] Port {self.port} is in use. Trying next port.")
-                self.port += 1  # Increment the port number
+                self.port += 1
                 attempt += 1
         else:
             raise RuntimeError("Failed to start server on any port. Exceeded maximum attempts.")
 
-        # Start the camera and control loops
         await self.server.wait_closed()
         
     def start(self):
@@ -275,25 +323,20 @@ class Session:
         """
         self.position_limits = np.array(position_limits)
 
-
-    
-    def vibrate(self, duration=0.1, intensity=1.0,  sharpness=1.0,):
+    def vibrate(self, duration=0.1, intensity=1.0, sharpness=1.0):
         """
-        Vibrate the connected device for the given duration and intensity.
+        Vibrate the connected device.
 
         Args:
             duration (float): The duration of the vibration in seconds.
             intensity (float): The intensity of the vibration.
+            sharpness (float): The sharpness of the vibration.
         """
         asyncio.run_coroutine_threadsafe(self._vibrate(sharpness, intensity, duration), self.loop)
 
     async def _vibrate(self, sharpness, intensity, duration):
         """
         Send a vibration command to all connected clients.
-
-        Args:
-            duration (float): The duration of the vibration in seconds (default is 0.1 seconds).
-            intensity (float): The intensity of the vibration (default is 1.0, range can be defined as per your requirements).
         """
         if self.connected_clients:
             message = json.dumps({"vibrate": True, "duration": duration, "intensity": intensity, "sharpness": sharpness})
@@ -305,225 +348,11 @@ class Session:
             if self.debug:
                 print("[INFO] No connected clients to send the vibration command.")
 
-
     def get_latest_data(self):
         """
         Get the latest received data.
 
         Returns:
-            dict: The latest rotation, position, and grasp data.
+            dict: The latest rotation, position, and other data.
         """
         return self.latest_data
-    
-    def link_body(self, name, scale=1.0, position_origin=np.zeros(3), rotation_origin=np.identity(3), post_transform=np.identity(4), pre_transform=np.identity(4), position_limits=None, toggle_fn=None, button_fn=None, vibrate_fn=None, disable_pos=False, disable_rot=False):
-        """
-        Adds a linked body to be directly controlled by the AR data as opposed to you doing it manually.
-
-        Args:
-            body_name (str): The name of the body in MuJoCo.
-            scale (float): Scalar number to multiply the positions from AR kit by
-            position_origin (numpy array of shape (3)): Translation to be done on the retrived pose (done after scaling if scale is not 1.0)
-            rotation_origin (numpy array of shape (3,3)): Rotation to be done on the retrived pose relative to the global frame (done after scaling if scale is not 1.0)
-            post_transform (numpy array of shape (4,4)): Post-multiple the recieved ransform this pose upon recieving it
-            pre_transform (numpy array of shape (4,4)): Pre-multiple the recieved ransform this pose upon recieving it
-            position_limits (numpy array of shape (1,3)): Limit the position of the body to the given values
-            toggle_fn (bool): a function to call when the toggle is toggled (no args)
-            button_fn (function): a function to call when the button is pressed (no args)
-            vibrate_fn (function): a function to vibrate when it returns true
-            disable_pos (bool): if true, does not update the position of the geom
-            disable_rot (bool): if true, does not update the rotation of the geom
-
-        """
-
-        if self.mujoco_model is None or self.mujoco_data is None:
-            raise ValueError("Must set the MuJoCo model and data to have a linked body.")
-
-        body_id =  mujoco.mj_name2id(self.mujoco_model, mujoco.mjtObj.mjOBJ_BODY, name)
-
-        linked_body = LinkedFrame(
-            id=body_id,
-            frame_type=0,
-            scale=scale,
-            position_origin=position_origin,
-            rotation_origin=rotation_origin,
-            post_transform=post_transform,
-            pre_transform=pre_transform,
-            position_limits=position_limits,
-            toggle_fn=toggle_fn,
-            button_fn = button_fn,
-            vibrate_fn = vibrate_fn,
-            disable_pos = disable_pos,
-            disable_rot = disable_rot,
-        )
-        
-        self.linked_frames.append(linked_body)
-
-        if self.mujoco_model is None or self.mujoco_data is None:
-            warnings.warn("Must set the MuJoCo model and data to have the linked body move.")
-            
-    def link_site(self, name, scale=1.0, position_origin=np.zeros(3), rotation_origin=np.identity(3), post_transform=np.identity(4), pre_transform=np.identity(4), position_limits=None, toggle_fn=None, button_fn=None, vibrate_fn=None, disable_pos=False, disable_rot=False):
-        """
-        Adds a linked site to be directly controlled by the AR data as opposed to you doing it manually.
-
-        Args:
-            site_name (str): The name of the site in MuJoCo.
-            scale (float): Scalar number to multiply the positions from AR kit by
-            position_origin (numpy array of shape (3)): Translation to be done on the retrived pose (done after scaling if scale is not 1.0)
-            rotation_origin (numpy array of shape (3,3)): Rotation to be done on the retrived pose relative to the global frame (done after scaling if scale is not 1.0)
-            post_transform (numpy array of shape (4,4)): Post-multiple the recieved ransform this pose upon recieving it
-            pre_transform (numpy array of shape (4,4)): Pre-multiple the recieved ransform this pose upon recieving it
-            position_limits (numpy array of shape (1,3)): Limit the position of the body to the given values
-            toggle_fn (bool): a function to call when the toggle is toggled (no args)
-            button_fn (function): a function to call when the button is pressed (no args)
-            vibrate_fn (function): a function to vibrate when it returns true
-            disable_pos (bool): if true, does not update the position of the geom
-            disable_rot (bool): if true, does not update the rotation of the geom
-
-        """
-
-        if self.mujoco_model is None or self.mujoco_data is None:
-            raise ValueError("Must set the MuJoCo model and data to have a linked site.")
-
-        site_id =  mujoco.mj_name2id(self.mujoco_model, mujoco.mjtObj.mjOBJ_SITE, name)
-        linked_site = LinkedFrame(
-            id=site_id,
-            frame_type = 1,
-            scale=scale,
-            position_origin=position_origin,
-            rotation_origin=rotation_origin,
-            post_transform=post_transform,
-            pre_transform=pre_transform,
-            position_limits=position_limits,
-            toggle_fn=toggle_fn,
-            button_fn = button_fn,
-            vibrate_fn = vibrate_fn,
-            disable_pos = disable_pos,
-            disable_rot = disable_rot,
-        )
-        
-        self.linked_frames.append(linked_site)
-
-        if self.mujoco_model is None or self.mujoco_data is None:
-            warnings.warn("Must set the MuJoCo model and data to have the linked site move.")
-
-    def link_geom(self, name, scale=1.0, position_origin=np.zeros(3), rotation_origin=np.identity(3), post_transform=np.identity(4), pre_transform=np.identity(4), position_limits=None, toggle_fn=None, button_fn=None, vibrate_fn=None, disable_pos=False, disable_rot=False):
-        """
-        Adds a linked geom to be directly controlled by the AR data as opposed to you doing it manually.
-
-        Args:
-            geom_name (str): The name of the geom in MuJoCo.
-            scale (float): Scalar number to multiply the positions from AR kit by
-            position_origin (numpy array of shape (3)): Translation to be done on the retrived pose (done after scaling if scale is not 1.0)
-            rotation_origin (numpy array of shape (3,3)): Rotation to be done on the retrived pose relative to the global frame (done after scaling if scale is not 1.0)
-            post_transform (numpy array of shape (4,4)): Post-multiple the recieved ransform this pose upon recieving it
-            pre_transform (numpy array of shape (4,4)): Pre-multiple the recieved ransform this pose upon recieving it
-            position_limits (numpy array of shape (1,3)): Limit the position of the body to the given values
-            toggle_fn (bool): a function to call when the toggle is toggled (no args)
-            button_fn (function): a function to call when the button is pressed (no args)
-            vibrate_fn (function): a function to vibrate when it returns true
-            disable_pos (bool): if true, does not update the position of the geom
-            disable_rot (bool): if true, does not update the rotation of the geom
-
-        """
-
-        if self.mujoco_model is None or self.mujoco_data is None:
-            raise ValueError("Must set the MuJoCo model and data to have a linked geom.")
-
-        geom_id =  mujoco.mj_name2id(self.mujoco_model, mujoco.mjtObj.mjOBJ_GEOM, name)
-        linked_geom = LinkedFrame(
-            id=geom_id,
-            frame_type = 2,
-            scale=scale,
-            position_origin=position_origin,
-            rotation_origin=rotation_origin,
-            post_transform=post_transform,
-            pre_transform=pre_transform,
-            position_limits=position_limits,
-            toggle_fn=toggle_fn,
-            button_fn = button_fn,
-            vibrate_fn = vibrate_fn,
-            disable_pos = disable_pos,
-            disable_rot = disable_rot,
-        )
-        
-        self.linked_frames.append(linked_geom)
-
-        if self.mujoco_model is None or self.mujoco_data is None:
-            warnings.warn("Must set the MuJoCo model and data to have the linked geom move.")
-
-class LinkedFrame:
-    
-    def __init__(self, id, frame_type, scale, position_origin, rotation_origin, post_transform, pre_transform, position_limits, toggle_fn, button_fn, vibrate_fn, disable_pos, disable_rot):
-        self.id = id
-        self.frame_type = frame_type
-        self.scale = scale
-        self.position_origin = position_origin
-        self.rotation_origin = rotation_origin
-        self.post_transform = post_transform
-        self.pre_transform = pre_transform
-        self.position_limits = position_limits
-        self.button_fn = button_fn
-        self.toggle_fn = toggle_fn
-        self.vibrate_fn = vibrate_fn
-        self.disable_pos = disable_pos
-        self.disable_rot = disable_rot
-        self.last_toggle = False
-
-    def update(self, mujoco_model, mujoco_data, latest_data):
-
-        pose = np.identity(4)
-        pose[0:3,0:3] = latest_data["rotation"]
-        pose[0:3,3] = latest_data["position"]
-
-        # Applying scale
-        pose[0:3,3] = pose[0:3,3]*self.scale
-        # Applying translation
-        if self.position_origin is not None:
-            pose[0:3,3] += self.position_origin
-        # Applying rotation
-        pose[0:3,0:3] = pose[0:3,0:3]@self.rotation_origin
-
-        # Applying transformation
-        pose = self.post_transform @ pose @ self.pre_transform
-
-        # Updating Toggle Button Variable 
-        if latest_data["toggle"] is not None and self.toggle_fn is not None and self.last_toggle != latest_data["toggle"]:
-            self.toggle_fn()
-            self.last_toggle = latest_data["toggle"]
-
-        # Calling button function if pressed
-        if latest_data["button"] and self.button_fn is not None:
-            self.button_fn()
-        # Converting the rotation matrix to quaternion
-        quat = np.zeros(4)
-        mujoco.mju_mat2Quat(quat, pose[0:3,0:3].flatten())
-
-        if self.position_limits is not None:
-            pose[0,3] = np.clip(pose[0,3], self.position_limits[0][0], self.position_limits[0][1])
-            pose[1,3] = np.clip(pose[1,3], self.position_limits[1][0], self.position_limits[1][1])
-            pose[2,3] = np.clip(pose[2,3], self.position_limits[2][0], self.position_limits[2][1])
-
-        if self.frame_type == 0: # body
-            mocap_id = mujoco_model.body(self.id).mocapid[0]
-            if mocap_id != -1:
-                if not self.disable_rot:
-                    mujoco_data.mocap_quat[mocap_id] = quat
-                if not self.disable_pos:
-                    mujoco_data.mocap_pos[mocap_id] = pose[0:3,3].tolist()
-            else:
-                if not self.disable_rot:
-                    mujoco_model.body_quat[self.id] = quat
-                if not self.disable_pos:
-                    mujoco_model.body_pos[self.id] = pose[0:3,3].tolist()
-
-        elif self.frame_type == 1: # site
-            if not self.disable_rot:
-                mujoco_model.site_quat[self.id] = quat
-            if not self.disable_pos:
-                mujoco_model.site_pos[self.id] = pose[0:3,3].tolist()
-
-        elif self.frame_type == 2: # geom
-            if not self.disable_rot:
-                mujoco_model.geom_quat[self.id] = quat
-            if not self.disable_pos:
-                mujoco_model.geom_pos[self.id] = pose[0:3,3].tolist()
