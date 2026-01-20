@@ -36,7 +36,7 @@ def main():
                 [0, 0, 1, 0],
                 [0, 0, 0, 1],
             ],
-        disable_rot=True,
+        disable_rot=False,
         button_fn=button_press,
         toggle_fn=toggle_press,
     )

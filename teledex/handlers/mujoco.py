@@ -23,8 +23,8 @@ class MujocoHandler:
             data: The MuJoCo data object.
         """
         # Import mujoco only when needed
-        import teledex.handlers.mujoco_handler as mujoco_handler
-        self.mujoco = mujoco_handler
+        import mujoco
+        self.mujoco = mujoco
         
         self.model = model
         self.data = data

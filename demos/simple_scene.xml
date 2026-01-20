@@ -31,7 +31,7 @@
          <light pos="0 4.5 0.6" dir="0 -1 0" directional="true"/>
         <light pos="0 -4.5 0.6" dir="0 1 0" directional="true"/>
 
-    <site name="target" type="sphere" pos="0.0 0.0 0.2" size="0.05" rgba="1 0 0 1" />
+    <site name="target" type="box" pos="0.0 0.0 0.2" size="0.05 0.05 0.05" rgba="1 0 0 1" euler="0.001 0 0"/>
 
 
             <geom name="floor" size="1 1 0.05" type="plane" material="floor_material"/>

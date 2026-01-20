@@ -1,1 +1,1 @@
-from .mujoco_handler import MujocoHandler
+from .mujoco import MujocoHandler

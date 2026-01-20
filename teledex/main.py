@@ -10,6 +10,12 @@ import platform
 import subprocess
 from scipy.spatial.transform import Rotation as R
 
+try:
+    import qrcode
+    HAS_QRCODE = True
+except ImportError:
+    HAS_QRCODE = False
+
 
 class Session:
     """
@@ -17,7 +23,7 @@ class Session:
     Supports modular handlers that get called on each data update.
     """
 
-    def __init__(self, port=8888, debug=False, hand_transformation=np.eye(4)):
+    def __init__(self, port=8888, debug=False, hand_transformation=np.eye(4), show_qr=True):
         """
         Initialize the session.
 
@@ -25,11 +31,11 @@ class Session:
             port (int): The port on which the connector listens.
             debug (bool): Enable debug mode for verbose output.
             hand_transformation (numpy array): Optional 4x4 transformation matrix from phone to hand.
+            show_qr (bool): Whether to display QR code in terminal on startup.
         """
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("127.0.0.1", 80))
-        self.ip_address = s.getsockname()[0]
+        self.ip_address = self._get_local_ip()
         self.port = port
+        self.show_qr = show_qr
         self.hand_transformation = np.array(hand_transformation)
         self.latest_data = {
             "rotation": None,
@@ -95,6 +101,85 @@ class Session:
             callback: A function that takes (session) as argument.
         """
         self._on_disconnect_callbacks.append(callback)
+
+    def _get_local_ip(self):
+        """
+        Get the local IP address of this machine.
+        Tries multiple methods to handle different network configurations.
+        """
+        # Method 1: Try connecting to an external address (works with internet)
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.settimeout(1)
+            s.connect(("8.8.8.8", 80))
+            ip = s.getsockname()[0]
+            s.close()
+            return ip
+        except (OSError, socket.timeout):
+            pass
+        
+        # Method 2: Try connecting to a local broadcast address (works without internet)
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.settimeout(1)
+            s.connect(("10.255.255.255", 1))
+            ip = s.getsockname()[0]
+            s.close()
+            if ip != "0.0.0.0":
+                return ip
+        except (OSError, socket.timeout):
+            pass
+        
+        # Method 3: Get IP from hostname
+        try:
+            hostname = socket.gethostname()
+            ip = socket.gethostbyname(hostname)
+            if ip != "127.0.0.1":
+                return ip
+        except socket.error:
+            pass
+        
+        # Method 4: Parse network interfaces (macOS/Linux)
+        if platform.system() != "Windows":
+            try:
+                import subprocess
+                result = subprocess.run(["ifconfig"], capture_output=True, text=True)
+                for line in result.stdout.split('\n'):
+                    if 'inet ' in line and '127.0.0.1' not in line:
+                        parts = line.strip().split()
+                        idx = parts.index('inet') + 1
+                        if idx < len(parts):
+                            ip = parts[idx]
+                            if ip.startswith(('192.168.', '10.', '172.')):
+                                return ip
+            except Exception:
+                pass
+        
+        # Fallback
+        return "127.0.0.1"
+
+    def _print_qr_code(self):
+        """
+        Print a QR code to the terminal containing the connection URL.
+        """
+        if not HAS_QRCODE:
+            print("[INFO] Install 'qrcode' package for QR code display: pip install qrcode")
+            return
+        
+        connection_url = f"{self.ip_address}:{self.port}"
+        
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=1,
+            border=1,
+        )
+        qr.add_data(connection_url)
+        qr.make(fit=True)
+        
+        print(f"\n[INFO] Scan this QR code to connect ({connection_url}):\n")
+        qr.print_ascii(invert=True)
+        print()
 
     async def _stop_server(self):
         """
@@ -285,7 +370,10 @@ class Session:
             try:
                 print(f"[INFO] Session Starting on port {self.port}...")
                 self.server = await websockets.serve(self._handle_connection, "0.0.0.0", self.port, ping_interval=self.ping_interval, ping_timeout=self.ping_timeout)
-                print(f"[INFO] Session Started. Details: \n[INFO] IP Address: {self.ip_address}\n[INFO] Port: {self.port}\n[INFO] Waiting for a device to connect...")
+                print(f"[INFO] Session Started. Connect using: {self.ip_address}:{self.port}")
+                print(f"[INFO] Waiting for a device to connect...")
+                if self.show_qr:
+                    self._print_qr_code()
                 break
             except OSError as e:
                 print(f"[WARNING] Port {self.port} is in use. Trying next port.")

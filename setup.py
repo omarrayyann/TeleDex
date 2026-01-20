@@ -6,4 +6,10 @@ setup(
     description="Phone-based Dexterous Robots teleoperation library",
     packages=find_packages(),
     python_requires=">=3.8",
+    install_requires=[
+        "numpy",
+        "scipy",
+        "websockets",
+        "qrcode",
+    ],
 )
