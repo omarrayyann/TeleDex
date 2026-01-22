@@ -8,7 +8,7 @@ def main():
     # MuJoCo initialization
     model = mujoco.MjModel.from_xml_path('demos/simple_scene.xml')
     data = mujoco.MjData(model)
-    target_site_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "target")
+    target_site_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "boxy")
 
     # Teledex Setup
     session = Session()
@@ -26,7 +26,7 @@ def main():
             model.site_size[target_site_id][0] = 0.05
 
     # Linking the target site with the AR position
-    mujoco_handler.link_site(
+    mujoco_handler.link_body(
         name="target",
         scale=3.0,
         position_origin=[0.0, 0.0, 0.2],

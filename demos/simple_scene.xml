@@ -31,8 +31,16 @@
          <light pos="0 4.5 0.6" dir="0 -1 0" directional="true"/>
         <light pos="0 -4.5 0.6" dir="0 1 0" directional="true"/>
 
-    <site name="target" type="box" pos="0.0 0.0 0.2" size="0.05 0.05 0.05" rgba="1 0 0 1" euler="0.001 0 0"/>
-
+        <body name="target" pos="0.0 0.0 0.2" euler="0.001 0 0">
+    <site name="boxy" type="box" size="0.035 0.035 0.035" rgba="0.5 0.5 0.5 1"/>
+            <site name="x-axis" type="cylinder" pos="0.0667 0.0 0.0" euler="0 90 0" rgba="1 0 0 1" size="0.005 0.0667"/>
+            <site name="x-arrow" type="sphere" pos="0.1333 0.0 0.0" rgba="1 0 0 1" size="0.015"/>
+            <site name="y-axis" type="cylinder" pos="0.0 0.0667 0.0" euler="90 0 0" rgba="0 1 0 1" size="0.005 0.0667"/>
+            <site name="y-arrow" type="sphere" pos="0.0 0.1333 0.0" rgba="0 1 0 1" size="0.015"/>
+            <site name="z-axis" type="cylinder" pos="0.0 0.0 0.0667" euler="0 0 0" rgba="0 0 1 1" size="0.005 0.0667"/>
+            <site name="z-arrow" type="sphere" pos="0.0 0.0 0.1333" rgba="0 0 1 1" size="0.015"/>
+            
+            </body>
 
             <geom name="floor" size="1 1 0.05" type="plane" material="floor_material"/>
 
