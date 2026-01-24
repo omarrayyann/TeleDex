@@ -46,6 +46,7 @@ class Session:
             "position_hand": None,
             "rotation_hand": None,
             "landmarks": None,
+            "world_landmarks": None,
         }
         self.server = None
         self.ping_interval = 20000000000
@@ -268,7 +269,9 @@ class Session:
         """
         Process incoming data and update latest_data.
         """
+        
         if 'rotation' in data and 'position' in data:
+
             rotation = np.array(data['rotation'])
             position = np.array(data['position'])
             self.latest_data["rotation"] = rotation.T
@@ -313,6 +316,8 @@ class Session:
 
         if 'landmarks' in data:
             self.latest_data["landmarks"] = np.array(data["landmarks"])
+        if 'world_landmarks' in data:
+            self.latest_data["world_landmarks"] = np.array(data["world_landmarks"])
 
     def _call_handlers(self):
         """
