@@ -2,7 +2,7 @@
 
 ## Overview
 - Phone-only mode streams the device pose and works without holder.
-- The *optional* holder adds finger tracking using a simple strap-based fixture.
+- The optional holder adds finger tracking using a simple strap-based fixture.
 
 ## Quick Start
 ![TeleDex Assembly Overview](./media/assembly_guide.png)
