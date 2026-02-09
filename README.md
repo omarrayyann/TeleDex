@@ -14,7 +14,13 @@ pip install teledex
 
 You can download the app from the [App Store](https://apps.apple.com/ae/app/mujoco-ar/id6612039501).
 
-## Usage
+## Before You Get Started
+You can use Teledex in phone-only mode (streams only the device pose) or with an optional 3D-printed holder to track finger motion while teleoperating. All printable parts are available in [`printables`](printables) folder.
+
+See [**ASSEMBLY_GUIDE**](./printables/README.md) for assembly notes and [**SETUP_GUIDE**](GUIDE.md) to get started with your phone and robot setup.
+ 
+
+## Basic Usage
 
 ### Basic Setup
 
@@ -26,7 +32,7 @@ session.start()
 
 # Retrieve AR data
 data = session.get_latest_data()
-# Returns: {"position": (3,), "rotation": (3, 3), "button": bool, "toggle": bool}
+# Returns: {"position": (3,), "rotation": (3, 3), "button": bool, "button_secondary": bool, # "toggle": bool}
 ```
 
 ### MuJoCo Setup
