@@ -60,3 +60,14 @@ session.pause_updates()
 session.resume_updates()
 session.reset_position()
 ```
+
+## Citation
+
+If you use Teledex in your research, please cite:
+
+```bibtex
+@misc{rayyan2026teledex,
+  author = {Rayyan, Omar and Gilles, Maximilian and Cui, Yuchen},
+  title  = {TeleDex: Accessible Dexterous Teleoperation},
+  year   = {2026}
+}
