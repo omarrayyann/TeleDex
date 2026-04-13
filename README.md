@@ -67,7 +67,8 @@ If you use Teledex in your research, please cite:
 
 ```bibtex
 @article{rayyan2026teledex,
-  author = {Rayyan, Omar and Gilles, Maximilian and Cui, Yuchen},
-  title  = {TeleDex: Accessible Dexterous Teleoperation},
-  year   = {2026}
+  title={TeleDex: Accessible Dexterous Teleoperation},
+  author={Rayyan, Omar and Gilles, Maximilian and Cui, Yuchen},
+  journal={arXiv preprint arXiv:2603.17065},
+  year={2026}
 }
