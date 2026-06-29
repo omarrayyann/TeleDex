@@ -23,20 +23,21 @@ class Session:
     Supports modular handlers that get called on each data update.
     """
 
-    def __init__(self, port=8888, debug=False, hand_transformation=np.eye(4), show_qr=True):
+    def __init__(self, port=8888, debug=False, show_qr=True, hand_offset=0.26):
         """
         Initialize the session.
 
         Args:
             port (int): The port on which the connector listens.
             debug (bool): Enable debug mode for verbose output.
-            hand_transformation (numpy array): Optional 4x4 transformation matrix from phone to hand.
             show_qr (bool): Whether to display QR code in terminal on startup.
+            hand_offset (float): Distance in meters along the phone's local Z axis
+                                 from the phone pose to the hand pose.
         """
         self.ip_address = self._get_local_ip()
         self.port = port
         self.show_qr = show_qr
-        self.hand_transformation = np.array(hand_transformation)
+        self.hand_offset = hand_offset
         self.latest_data = {
             "rotation": None,
             "position": None,
@@ -303,7 +304,7 @@ class Session:
             # Compute hand pose
             T_phone_hand = np.eye(4)
             T_phone_hand[:3, :3] = R.from_euler('z', 180, degrees=True).as_matrix()
-            T_phone_hand[:3, 3] = np.array([0.0, 0.0, 0.26])
+            T_phone_hand[:3, 3] = np.array([0.0, 0.0, self.hand_offset])
             
             T_world_phone = np.eye(4)
             T_world_phone[:3, :3] = self.latest_data["rotation"].reshape(3, 3)
