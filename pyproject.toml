@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "teledex"
-version = "0.0.6"
+version = "0.0.7"
 description = "Phone-based Dexterous Robots teleoperation library"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -21,4 +21,5 @@ dependencies = [
 ]
 
 [project.urls]
+Homepage = "https://www.orayyan.com/teledex"
 Repository = "https://github.com/omarrayyann/teledex"
