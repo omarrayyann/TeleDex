@@ -63,6 +63,30 @@ mujoco_handler.link_body(name="eef_target")
 session.start()
 ```
 
+### MuJoCo Studio Setup
+
+Drive a mocap body in [MuJoCo Studio](https://mujoco.readthedocs.io/en/latest/studio/index.html) and get a TeleDex panel (QR code, connection status, live pose, pause/recenter) inside the viewer. Requires a mujoco build that ships `mujoco.studio`.
+
+```python
+from mujoco.studio import launch_passive, viewer_app, viewer_protocol
+from teledex.studio import TeleDexSim, TeleDexPanel
+
+launch_passive.run(
+    viewer_protocol.ViewerConfig(gfx="web", open_browser=True),
+    model_path="scene.xml",
+    plugins=[viewer_app.ViewerApp(), *viewer_app.SIM_PLUGINS,
+             TeleDexSim(body="target", scale=1.5), TeleDexPanel()],
+)
+```
+
+Or from the command line, driving the model's first mocap body:
+
+```bash
+python -m mujoco.studio.viewer --model=demos/studio_scene.xml --gfx=web --plugins=demos/studio_plugin.py
+```
+
+`TeleDexSim(mode="delta", max_dpos=0.02)` follows pose changes with a per-step cap instead of the absolute pose. See [`demos/studio_demo.py`](demos/studio_demo.py).
+
 ## Additional Functions
 
 ```python
