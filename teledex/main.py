@@ -8,6 +8,7 @@ import socket
 import threading
 import platform
 import subprocess
+from urllib.parse import urlencode
 from scipy.spatial.transform import Rotation as R
 
 try:
@@ -16,6 +17,8 @@ try:
 except ImportError:
     HAS_QRCODE = False
 
+APP_CLIP_URL = "https://orayyan.com/teledex/clip/"
+
 
 class Session:
     """
@@ -23,7 +26,7 @@ class Session:
     Supports modular handlers that get called on each data update.
     """
 
-    def __init__(self, port=8888, debug=False, show_qr=True, hand_offset=0.26):
+    def __init__(self, port=8888, debug=False, show_qr=True, hand_offset=0.26, app_clip=False, delta=False):
         """
         Initialize the session.
 
@@ -33,10 +36,16 @@ class Session:
             show_qr (bool): Whether to display QR code in terminal on startup.
             hand_offset (float): Distance in meters along the phone's local Z axis
                                  from the phone pose to the hand pose.
+            app_clip (bool): Encode the QR code as a TeleDex App Clip link, so scanning it with
+                             the iPhone Camera opens TeleDex and connects without installing the app.
+                             Requires app version 2.2+ when scanning from inside the app.
+            delta (bool): Track pose changes for relative controllers (OSC, velocity, delta IK).
+                          Read them with `get_delta()` from your control loop.
         """
         self.ip_address = self._get_local_ip()
         self.port = port
         self.show_qr = show_qr
+        self.app_clip = app_clip
         self.hand_offset = hand_offset
         self.latest_data = {
             "rotation": None,
@@ -57,6 +66,16 @@ class Session:
         self.reset_position_values = np.array([0.0, 0.0, 0.0])
         self.get_updates = True
         self.position_limits = None
+
+        # Delta tracking (opt-in): deltas are measured from an anchor pose that only advances
+        # when get_delta() is called, so dropped messages or slow control loops never lose motion.
+        self.delta = delta
+        self.delta_jump_position = 0.1  # meters between consecutive messages treated as a discontinuity
+        self.delta_jump_rotation = 0.6  # radians between consecutive messages treated as a discontinuity
+        self._delta_lock = threading.Lock()
+        self._delta_anchor = None  # (position, rotation) already reported through get_delta()
+        self._delta_latest = None  # latest (position, rotation) received
+        self._delta_rebase = False  # exclude the change into the next message (after reset/resume/connect)
         
         # Modular handler system
         self._handlers = []
@@ -168,7 +187,7 @@ class Session:
             print("[INFO] Install 'qrcode' package for QR code display: pip install qrcode")
             return
         
-        connection_url = f"{self.ip_address}:{self.port}"
+        connection_url = self.connection_link() if self.app_clip else f"{self.ip_address}:{self.port}"
         
         qr = qrcode.QRCode(
             version=1,
@@ -179,9 +198,18 @@ class Session:
         qr.add_data(connection_url)
         qr.make(fit=True)
         
-        print(f"\n[INFO] Scan this QR code to connect ({connection_url}):\n")
+        if self.app_clip:
+            print(f"\n[INFO] Scan this QR code with your iPhone Camera to open TeleDex ({connection_url}):\n")
+        else:
+            print(f"\n[INFO] Scan this QR code to connect ({connection_url}):\n")
         qr.print_ascii(invert=True)
         print()
+
+    def connection_link(self):
+        """
+        Get the App Clip link that opens TeleDex and connects it to this session.
+        """
+        return f"{APP_CLIP_URL}?{urlencode({'ip': self.ip_address, 'port': self.port})}"
 
     async def _stop_server(self):
         """
@@ -216,6 +244,7 @@ class Session:
         """
         if self.latest_data["position"] is not None:
             self.reset_position_values += self.latest_data["position"]
+            self._delta_rebase = True
             if self.debug:
                 print(f"[INFO] Position reset to: {self.reset_position_values}")
     
@@ -229,6 +258,7 @@ class Session:
         """
         Resumes getting updates of data from the connected device.
         """
+        self._delta_rebase = True  # don't replay motion that happened while paused
         self.get_updates = True
 
     def _kill_process_using_port(self, port):
@@ -300,6 +330,9 @@ class Session:
 
             self.latest_data["button"] = data.get('button', False)
             self.latest_data["toggle"] = data.get('toggle', False)
+
+            if self.delta:
+                self._track_delta(self.latest_data["position"], self.latest_data["rotation"])
         
             # Compute hand pose
             T_phone_hand = np.eye(4)
@@ -319,6 +352,99 @@ class Session:
             self.latest_data["landmarks"] = np.array(data["landmarks"])
         if 'world_landmarks' in data:
             self.latest_data["world_landmarks"] = np.array(data["world_landmarks"])
+
+    def _track_delta(self, position, rotation):
+        """
+        Record the latest pose for get_delta(), excluding discontinuities such as the
+        app's Reset button, so they never reach a relative controller as motion.
+        """
+        position = np.array(position, dtype=float)
+        rotation = np.array(rotation, dtype=float).reshape(3, 3)
+
+        with self._delta_lock:
+            if self._delta_anchor is None:
+                self._delta_anchor = (position.copy(), rotation.copy())
+                self._delta_latest = (position, rotation)
+                self._delta_rebase = False
+                return
+
+            prev_position, prev_rotation = self._delta_latest
+            jump_angle = np.linalg.norm(R.from_matrix(rotation @ prev_rotation.T).as_rotvec())
+            is_jump = (np.linalg.norm(position - prev_position) > self.delta_jump_position
+                       or jump_angle > self.delta_jump_rotation)
+
+            if self._delta_rebase or is_jump:
+                # Shift the anchor so the pending (unreported) motion is kept but this step is dropped
+                anchor_position, anchor_rotation = self._delta_anchor
+                self._delta_anchor = (
+                    anchor_position + (position - prev_position),
+                    anchor_rotation @ prev_rotation.T @ rotation,
+                )
+                self._delta_rebase = False
+                if self.debug and is_jump:
+                    print("[INFO] Pose discontinuity ignored for deltas")
+
+            self._delta_latest = (position, rotation)
+
+    def get_delta(self, max_dpos=None, max_drot=None):
+        """
+        Get the pose change since the previous call (requires Session(delta=True)).
+
+        Call once per control step. Motion is never lost: if the phone moved more than the
+        limits allow, the remainder is returned on the following calls.
+
+        Args:
+            max_dpos (float): Optional cap on the translation returned per call, in meters.
+            max_drot (float): Optional cap on the rotation returned per call, in radians.
+
+        Returns:
+            dict: "dpos" (3,) translation change, "drot" (3, 3) rotation change and
+                  "drot_axis_angle" (3,) the same rotation as an axis-angle vector, all in the
+                  session frame (x forward, y left, z up), such that rotation = drot @ previous_rotation.
+                  Also includes the current "button" and "toggle" states.
+        """
+        if not self.delta:
+            raise RuntimeError("Delta tracking is off. Create the session with Session(delta=True).")
+
+        dpos = np.zeros(3)
+        drot = np.eye(3)
+        rotvec = np.zeros(3)
+
+        with self._delta_lock:
+            if self._delta_anchor is not None:
+                anchor_position, anchor_rotation = self._delta_anchor
+                latest_position, latest_rotation = self._delta_latest
+
+                dpos = latest_position - anchor_position
+                distance = np.linalg.norm(dpos)
+                if max_dpos is not None and distance > max_dpos:
+                    dpos = dpos * (max_dpos / distance)
+
+                rotvec = R.from_matrix(latest_rotation @ anchor_rotation.T).as_rotvec()
+                angle = np.linalg.norm(rotvec)
+                if max_drot is not None and angle > max_drot:
+                    rotvec = rotvec * (max_drot / angle)
+                drot = R.from_rotvec(rotvec).as_matrix()
+
+                self._delta_anchor = (anchor_position + dpos, drot @ anchor_rotation)
+
+        return {
+            "dpos": dpos,
+            "drot": drot,
+            "drot_axis_angle": rotvec,
+            "button": self.latest_data["button"],
+            "toggle": self.latest_data["toggle"],
+        }
+
+    def reset_delta(self):
+        """
+        Discard any motion not yet returned by get_delta(), e.g. when your own clutch
+        disengages or the robot is reset.
+        """
+        with self._delta_lock:
+            if self._delta_latest is not None:
+                position, rotation = self._delta_latest
+                self._delta_anchor = (position.copy(), rotation.copy())
 
     def _call_handlers(self):
         """
@@ -342,6 +468,7 @@ class Session:
         """
         print("[INFO] Device connected successfully!")
         self.connected_clients.add(websocket)
+        self._delta_rebase = True  # a (re)connecting phone may start from a different pose
         
         # Call connect callbacks
         for callback in self._on_connect_callbacks:
