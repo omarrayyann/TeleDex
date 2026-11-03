@@ -9,9 +9,9 @@ Needs a mujoco build with Studio (nightly: pip install --pre mujoco -f https://p
 import argparse
 import os
 
-from mujoco.studio import launch_passive, viewer_app, viewer_protocol
+from mujoco.studio import launch_passive, viewer_protocol
 
-from teledex.studio import TeleDexPanel, TeleDexSim
+from teledex.studio import TeleDexPanel, TeleDexSim, studio_plugins
 
 
 def main():
@@ -26,8 +26,7 @@ def main():
         config,
         model_path=os.path.join(os.path.dirname(__file__), "studio_scene.xml"),
         plugins=[
-            viewer_app.ViewerApp(),
-            *viewer_app.SIM_PLUGINS,
+            *studio_plugins(),
             TeleDexSim(body="target", scale=1.5, mode=args.mode, max_dpos=0.02, app_clip=args.app_clip,
                        position_limits=[[-0.8, 0.8], [-0.8, 0.8], [0.03, 0.8]]),
             TeleDexPanel(),

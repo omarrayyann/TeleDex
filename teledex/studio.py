@@ -7,13 +7,13 @@ target in the scene.
 
 Example:
 
-    from mujoco.studio import launch_passive, viewer_app, viewer_protocol
-    from teledex.studio import TeleDexSim, TeleDexPanel
+    from mujoco.studio import launch_passive, viewer_protocol
+    from teledex.studio import TeleDexSim, TeleDexPanel, studio_plugins
 
     launch_passive.run(
         viewer_protocol.ViewerConfig(gfx="web"),
         model_path="scene.xml",
-        plugins=[viewer_app.ViewerApp(), *viewer_app.SIM_PLUGINS, TeleDexSim(body="target"), TeleDexPanel()],
+        plugins=[*studio_plugins(), TeleDexSim(body="target"), TeleDexPanel()],
     )
 """
 import dataclasses
@@ -37,6 +37,16 @@ except ImportError:
     HAS_QRCODE = False
 
 logger = logging.getLogger(__name__)
+
+
+def studio_plugins():
+    """Studio's built-in app and simulation plugins, for ``launch_passive.run``."""
+    try:  # nightlies from Nov 2026 on
+        from mujoco.studio import app
+        return [app.App(), *app.SIM_PLUGINS]
+    except ImportError:
+        from mujoco.studio import viewer_app
+        return [viewer_app.ViewerApp(), *viewer_app.SIM_PLUGINS]
 
 # Panel colours, RGBA in [0, 1]
 GREEN = (0.30, 0.80, 0.45, 1.0)
@@ -338,7 +348,7 @@ class TeleDexPanel(plugin.ViewerPlugin):
 
     @messages.handler
     def on_build_gui(self, _: messages.BuildGuiEvent) -> None:
-        # Open next to ViewerApp's Options sidebar on launch; users can move or dock it after
+        # Open next to Studio's Options sidebar on launch; users can move or dock it after
         imgui.SetNextWindowPos(imgui.Vec2(222, 36), imgui.Cond.Once)
         expanded, _ = imgui.Begin("TeleDex", None, imgui.WindowFlags.AlwaysAutoResize)
         if expanded:

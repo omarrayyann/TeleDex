@@ -14,11 +14,11 @@ import mujoco
 import numpy as np
 import tabletask
 from tabletask.language.monitor import Monitor
-from mujoco.studio import launch_passive, messages, plugin, viewer_app, viewer_protocol
+from mujoco.studio import launch_passive, messages, plugin, viewer_protocol
 from mujoco.studio.dear_imgui import dear_imgui as imgui
 from tabletask.robots import Gripper
 
-from teledex.studio import TeleDexPanel, TeleDexSim
+from teledex.studio import TeleDexPanel, TeleDexSim, studio_plugins
 
 STATE = mujoco.mjtState.mjSTATE_INTEGRATION
 TASKS = os.environ.get("TABLETASK_TASKS", os.path.expanduser("~/Documents/tabletask/tasks/base"))
@@ -136,8 +136,7 @@ def main():
         model=model,
         data=data,
         plugins=[
-            viewer_app.ViewerApp(),
-            *viewer_app.SIM_PLUGINS,
+            *studio_plugins(),
             TeleDexSim(
                 body="gripper/target",
                 scale=args.scale,
