@@ -26,7 +26,8 @@ class Session:
     Supports modular handlers that get called on each data update.
     """
 
-    def __init__(self, port=8888, debug=False, show_qr=True, hand_offset=0.26, app_clip=False, delta=False):
+    def __init__(self, port=8888, debug=False, show_qr=True, hand_offset=0.26, app_clip=False, delta=False,
+                 remote=False, signal_url=None):
         """
         Initialize the session.
 
@@ -41,6 +42,11 @@ class Session:
                              Requires app version 2.2+ when scanning from inside the app.
             delta (bool): Track pose changes for relative controllers (OSC, velocity, delta IK).
                           Read them with `get_delta()` from your control loop.
+            remote (bool): Also accept a phone on another network, over a direct internet
+                           connection. The QR code then carries a session code; the phone still
+                           connects locally first when it can. Requires app version 2.3+.
+            signal_url (str): The TeleDex rendezvous server used for remote connections
+                              (see signal/). Defaults to TELEDEX_SIGNAL_URL.
         """
         self.ip_address = self._get_local_ip()
         self.port = port
@@ -66,6 +72,7 @@ class Session:
         self.reset_position_values = np.array([0.0, 0.0, 0.0])
         self.get_updates = True
         self.position_limits = None
+        self.messages_received = 0  # pose messages from the phone, over either connection
 
         # Delta tracking (opt-in): deltas are measured from an anchor pose that only advances
         # when get_delta() is called, so dropped messages or slow control loops never lose motion.
@@ -77,6 +84,16 @@ class Session:
         self._delta_latest = None  # latest (position, rotation) received
         self._delta_rebase = False  # exclude the change into the next message (after reset/resume/connect)
         
+        # Remote connections (opt-in): a direct UDP link to a phone on another network
+        self.remote = None
+        if remote:
+            from .remote import SIGNAL_URL, RemoteLink
+
+            signal_url = signal_url or SIGNAL_URL
+            if not signal_url:
+                raise ValueError("remote=True needs a rendezvous server: pass signal_url or set TELEDEX_SIGNAL_URL")
+            self.remote = RemoteLink(self, signal_url)
+
         # Modular handler system
         self._handlers = []
         self._on_update_callbacks = []
@@ -187,7 +204,8 @@ class Session:
             print("[INFO] Install 'qrcode' package for QR code display: pip install qrcode")
             return
         
-        connection_url = self.connection_link() if self.app_clip else f"{self.ip_address}:{self.port}"
+        link = self.app_clip or self.remote is not None  # a session code only fits in a link
+        connection_url = self.connection_link() if link else f"{self.ip_address}:{self.port}"
         
         qr = qrcode.QRCode(
             version=1,
@@ -198,7 +216,7 @@ class Session:
         qr.add_data(connection_url)
         qr.make(fit=True)
         
-        if self.app_clip:
+        if link:
             print(f"\n[INFO] Scan this QR code with your iPhone Camera to open TeleDex ({connection_url}):\n")
         else:
             print(f"\n[INFO] Scan this QR code to connect ({connection_url}):\n")
@@ -209,12 +227,26 @@ class Session:
         """
         Get the App Clip link that opens TeleDex and connects it to this session.
         """
-        return f"{APP_CLIP_URL}?{urlencode({'ip': self.ip_address, 'port': self.port})}"
+        params = {"ip": self.ip_address, "port": self.port}
+        if self.remote is not None:
+            from .remote import SIGNAL_URL
+
+            params.update(sid=self.remote.sid, key=self.remote.key_text)
+            if self.remote.signal_url != SIGNAL_URL.rstrip("/"):
+                params["sig"] = self.remote.signal_url
+        return f"{APP_CLIP_URL}?{urlencode(params)}"
+
+    @property
+    def is_connected(self):
+        """Whether a phone is connected, locally or over the internet."""
+        return bool(self.connected_clients) or (self.remote is not None and self.remote.connected)
 
     async def _stop_server(self):
         """
         Stop the WebSocket server and close all active connections.
         """
+        if self.remote is not None:
+            await self.remote.close()
         if self.server is not None:
             for websocket in list(self.connected_clients):
                 try:
@@ -476,13 +508,7 @@ class Session:
         
         try:
             async for message in websocket:
-                if self.get_updates:
-                    data = json.loads(message)
-                    self._process_data(data)
-                    self._call_handlers()
-                    
-                    if self.debug:
-                        print(f"[DATA] Rotation: {self.latest_data['rotation']}, Position: {self.latest_data['position']}, Button: {self.latest_data['button']}, Toggle: {self.latest_data['toggle']}")
+                self._on_message(json.loads(message))
         except websockets.ConnectionClosed as e:
             print(f"[INFO] Application disconnected: {e}")
         finally:
@@ -490,6 +516,30 @@ class Session:
             # Call disconnect callbacks
             for callback in self._on_disconnect_callbacks:
                 callback(self)
+
+    def _on_message(self, data):
+        """
+        Handle one message from the phone, from either connection.
+        """
+        self.messages_received += 1
+        if not self.get_updates:
+            return
+        self._process_data(data)
+        self._call_handlers()
+
+        if self.debug:
+            print(f"[DATA] Rotation: {self.latest_data['rotation']}, Position: {self.latest_data['position']}, Button: {self.latest_data['button']}, Toggle: {self.latest_data['toggle']}")
+
+    def _on_remote_connect(self, address):
+        print(f"[INFO] Device connected over the internet from {address[0]}:{address[1]}")
+        self._delta_rebase = True
+        for callback in self._on_connect_callbacks:
+            callback(self)
+
+    def _on_remote_disconnect(self):
+        print("[INFO] Internet connection to the device lost")
+        for callback in self._on_disconnect_callbacks:
+            callback(self)
 
     async def _start(self):
         """
@@ -504,6 +554,13 @@ class Session:
                 print(f"[INFO] Session Starting on port {self.port}...")
                 self.server = await websockets.serve(self._handle_connection, "0.0.0.0", self.port, ping_interval=self.ping_interval, ping_timeout=self.ping_timeout)
                 print(f"[INFO] Session Started. Connect using: {self.ip_address}:{self.port}")
+                if self.remote is not None:
+                    try:
+                        await self.remote.start(self.port)
+                        print(f"[INFO] Internet connections enabled (session {self.remote.sid})")
+                    except OSError as e:
+                        print(f"[WARNING] Internet connections unavailable, UDP port {self.port}: {e}")
+                        self.remote = None
                 print(f"[INFO] Waiting for a device to connect...")
                 if self.show_qr:
                     self._print_qr_code()
@@ -559,8 +616,10 @@ class Session:
         """
         Send a vibration command to all connected clients.
         """
+        message = json.dumps({"vibrate": True, "duration": duration, "intensity": intensity, "sharpness": sharpness})
+        if self.remote is not None:
+            self.remote.vibrate(message)
         if self.connected_clients:
-            message = json.dumps({"vibrate": True, "duration": duration, "intensity": intensity, "sharpness": sharpness})
             for client in self.connected_clients:
                 await client.send(message)
                 if self.debug:

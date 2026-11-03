@@ -117,6 +117,8 @@ def main():
     parser.add_argument("--episode", type=int, default=0, help="Start to sample (the seed).")
     parser.add_argument("--scale", type=float, default=2.0, help="Gripper motion per metre of phone motion.")
     parser.add_argument("--app-clip", action="store_true", help="Encode the QR code as a TeleDex App Clip link.")
+    parser.add_argument("--remote", action="store_true", help="Also accept a phone on another network.")
+    parser.add_argument("--signal-url", default=None, help="Rendezvous server for --remote (see signal/).")
     parser.add_argument("--native", action="store_true", help="Open a desktop window instead of the browser viewer.")
     args = parser.parse_args()
 
@@ -143,6 +145,8 @@ def main():
                 gripper_ctrl=(low, high),  # Robotiq: 0 open, 255 closed; Toggle on closes
                 position_limits=[[-0.2, 1.4], [-0.9, 0.9], [table_top - 0.005 + tcp_height, 1.6]],
                 app_clip=args.app_clip,
+                remote=args.remote,
+                signal_url=args.signal_url,
             ),
             TeleDexPanel(),
             TaskMonitor(env),

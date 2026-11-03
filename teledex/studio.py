@@ -38,6 +38,24 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+# Panel colours, RGBA in [0, 1]
+GREEN = (0.30, 0.80, 0.45, 1.0)
+AMBER = (0.95, 0.70, 0.25, 1.0)
+RED = (0.95, 0.35, 0.30, 1.0)
+IDLE = (0.35, 0.37, 0.40, 1.0)
+
+
+def _route(session):
+    """How the phone is connected, e.g. "Same network · IPv6", or "" when it is not."""
+    remote = session.remote
+    if remote is not None and remote.connected and remote.peer:
+        ip = remote.peer[0]
+        family = "IPv6" if ":" in ip else "IPv4"
+        return f"{'Same network' if remote.same_network(ip) else 'Internet'} · {family}"
+    if session.connected_clients:
+        return "Same network · Wi-Fi"
+    return ""
+
 
 @dataclasses.dataclass(frozen=True, eq=False)
 class TeleDexSnapshot(messages.Snapshot):
@@ -55,6 +73,10 @@ class TeleDexSnapshot(messages.Snapshot):
     button: bool
     toggle: bool
     error: str = ""
+    internet: str = ""  # "", "ready" or "connecting"
+    route: str = ""  # how the phone is connected; see _route
+    rate: float = 0.0  # pose messages per second from the phone
+    scale: float = 1.0
 
 
 @dataclasses.dataclass(frozen=True)
@@ -82,11 +104,14 @@ class TeleDexSim(plugin.SimPlugin):
         gripper_ctrl: (open, closed) controls for the gripper actuators. Defaults to the low and
                       high ends of each actuator's ctrlrange.
         app_clip: Encode the QR code as a TeleDex App Clip link.
+        remote: Also accept a phone on another network (see ``Session(remote=True)``).
+        signal_url: Rendezvous server for remote connections.
     """
 
     def __init__(self, body=None, port=8888, scale=1.0, frame=None, mode="absolute",
                  max_dpos=None, max_drot=None, position_limits=None, disable_rot=False,
-                 gripper_actuator=None, gripper_ctrl=None, app_clip=False):
+                 gripper_actuator=None, gripper_ctrl=None, app_clip=False, remote=False,
+                 signal_url=None):
         if mode not in ("absolute", "delta"):
             raise ValueError('mode must be "absolute" or "delta"')
         self.body = body
@@ -102,6 +127,8 @@ class TeleDexSim(plugin.SimPlugin):
                                   else list(gripper_actuator or []))
         self.gripper_ctrl = gripper_ctrl
         self.app_clip = app_clip
+        self.remote = remote
+        self.signal_url = signal_url
 
         self.session = None
         self._mocap_id = -1
@@ -115,12 +142,16 @@ class TeleDexSim(plugin.SimPlugin):
         self._target = None  # commanded (position, rotation)
         self._was_connected = False
         self._last_snapshot_time = 0.0
+        self._rate = 0.0
+        self._rate_count = 0
+        self._rate_time = time.monotonic()
 
     # -- Lifecycle -----------------------------------------------------------------
 
     @messages.handler
     def on_sim_init(self, _: plugin.SimInitEvent) -> None:
-        self.session = Session(port=self.port, app_clip=self.app_clip, delta=True)
+        self.session = Session(port=self.port, app_clip=self.app_clip, delta=True,
+                               remote=self.remote, signal_url=self.signal_url)
         self.session.start()
 
     @messages.handler
@@ -179,7 +210,7 @@ class TeleDexSim(plugin.SimPlugin):
         if self.session is None:
             return
         latest = self.session.get_latest_data()
-        connected = bool(self.session.connected_clients)
+        connected = self.session.is_connected
         if connected and not self._was_connected:
             self._recenter = True  # a (re)connected phone starts from its own origin
         self._was_connected = connected
@@ -198,11 +229,21 @@ class TeleDexSim(plugin.SimPlugin):
         if now - self._last_snapshot_time < 1.0 / 60.0:
             return
         self._last_snapshot_time = now
+        if now - self._rate_time >= 1.0:
+            count = self.session.messages_received
+            self._rate = (count - self._rate_count) / (now - self._rate_time)
+            self._rate_count, self._rate_time = count, now
 
         self.handle.send_to_viewer(TeleDexSnapshot(
             connected=connected,
-            address=f"{self.session.ip_address}:{self.session.port}",
-            qr_payload=self.session.connection_link() if self.app_clip else f"{self.session.ip_address}:{self.session.port}",
+            address=(f"{self.session.ip_address}:{self.session.port}"
+                     if not self.session.ip_address.startswith(("192.0.0.", "127.")) else ""),
+            internet="" if self.session.remote is None else ("ready" if self.session.remote.ready else "connecting"),
+            route=_route(self.session) if connected else "",
+            rate=self._rate if connected else 0.0,
+            scale=self.scale,
+            qr_payload=(self.session.connection_link() if self.app_clip or self.session.remote is not None
+                        else f"{self.session.ip_address}:{self.session.port}"),
             body=self._body_name,
             mode=self.mode,
             paused=self._paused,
@@ -264,7 +305,7 @@ class TeleDexSim(plugin.SimPlugin):
 class TeleDexPanel(plugin.ViewerPlugin):
     """Studio window with the TeleDex QR code, connection status and live pose."""
 
-    QR_MODULE_PX = 4
+    QR_SIZE_PX = 150  # target width of the QR code; longer links get smaller squares
 
     def __init__(self, show_target=True):
         self.show_target = show_target
@@ -299,7 +340,7 @@ class TeleDexPanel(plugin.ViewerPlugin):
     def on_build_gui(self, _: messages.BuildGuiEvent) -> None:
         # Open next to ViewerApp's Options sidebar on launch; users can move or dock it after
         imgui.SetNextWindowPos(imgui.Vec2(222, 36), imgui.Cond.Once)
-        expanded, _ = imgui.Begin("TeleDex")
+        expanded, _ = imgui.Begin("TeleDex", None, imgui.WindowFlags.AlwaysAutoResize)
         if expanded:
             self._build_gui()
         imgui.End()
@@ -307,43 +348,97 @@ class TeleDexPanel(plugin.ViewerPlugin):
     def _build_gui(self):
         state = self._state
         if state is None:
-            imgui.TextUnformatted("Starting TeleDex session...")
+            imgui.TextDisabled("Starting TeleDex…")
             return
 
+        self._build_status(state)
+        if state.connected and not state.error:
+            self._build_pose(state)
+        elif not state.error:
+            self._build_pairing(state)
+        self._build_controls(state)
+        imgui.Spacing()
+        imgui.TextDisabled(f"{state.body or '-'}  ·  {state.mode}  ·  {state.scale:g}× motion")
+
+    def _build_status(self, state):
         if state.error:
-            imgui.TextColored(imgui.Vec4(0.95, 0.35, 0.3, 1.0), state.error)
+            colour, title, detail = RED, state.error, ""
         elif state.connected:
-            imgui.TextColored(imgui.Vec4(0.3, 0.8, 0.45, 1.0), "Phone connected")
+            colour, title = (AMBER, "Paused") if state.paused else (GREEN, "Connected")
+            detail = f"{state.route}  ·  {state.rate:.0f} Hz" if state.route else ""
         else:
-            imgui.TextColored(imgui.Vec4(0.95, 0.7, 0.25, 1.0), "Waiting for phone")
+            colour, title, detail = AMBER, "Waiting for phone", ""
+        _dot(colour)
+        imgui.SameLine()
+        imgui.TextColored(imgui.Vec4(*colour), title)
+        if detail:
+            imgui.TextDisabled(detail)
+        imgui.Spacing()
 
-        imgui.TextUnformatted(f"Address: {state.address}")
-        if not state.connected:
-            if self._qr_texture:
-                app_clip = state.qr_payload.startswith("https://")
-                imgui.TextUnformatted("Scan with the iPhone Camera:" if app_clip else "Scan in the TeleDex app:")
-                imgui.Image(self._qr_texture, imgui.Vec2(self._qr_size, self._qr_size))
-            elif not HAS_QRCODE:
-                imgui.TextUnformatted("pip install qrcode to show the QR code here")
+    def _build_pairing(self, state):
+        if self._qr_texture:
+            _centered(self._qr_size)
+            imgui.Image(self._qr_texture, imgui.Vec2(self._qr_size, self._qr_size))
+            caption = ("Scan with the iPhone Camera or the TeleDex app" if state.qr_payload.startswith("https://")
+                       else "Scan with the TeleDex app")
+            _centered(imgui.CalcTextSize(caption).x)
+            imgui.TextDisabled(caption)
+        elif not HAS_QRCODE:
+            imgui.TextDisabled("pip install qrcode to show the QR code here")
 
-        imgui.Separator()
-        imgui.TextUnformatted(f"Body: {state.body or '-'}    Mode: {state.mode}")
-        if state.phone_position is not None:
-            x, y, z = state.phone_position
-            imgui.TextUnformatted(f"Phone   x {x:+.3f}  y {y:+.3f}  z {z:+.3f}")
-        if state.target_position is not None:
-            x, y, z = state.target_position
-            imgui.TextUnformatted(f"Target  x {x:+.3f}  y {y:+.3f}  z {z:+.3f}")
-        imgui.TextUnformatted(f"Button: {'down' if state.button else 'up'}    Toggle: {'on' if state.toggle else 'off'}")
+        imgui.Spacing()
+        if imgui.BeginTable("##teledex_routes", 2):
+            imgui.TableSetupColumn("##what", imgui.TableColumnFlags.WidthFixed, 70)
+            imgui.TableSetupColumn("##value", imgui.TableColumnFlags.WidthStretch)
+            _row("Local", state.address or "not available on this network", dim=not state.address)
+            if state.internet:
+                _row("Internet", state.internet, colour=GREEN if state.internet == "ready" else AMBER)
+            else:
+                _row("Internet", "off (remote=True to enable)", dim=True)
+            imgui.EndTable()
 
-        imgui.Separator()
-        if imgui.Button("Resume" if state.paused else "Pause"):
+    def _build_pose(self, state):
+        imgui.SeparatorText("Pose")
+        if imgui.BeginTable("##teledex_pose", 4):
+            imgui.TableSetupColumn("##what", imgui.TableColumnFlags.WidthFixed, 56)
+            for axis in ("x", "y", "z"):
+                imgui.TableSetupColumn(axis, imgui.TableColumnFlags.WidthFixed, 64)
+            imgui.TableNextRow()
+            for heading in ("", "x", "y", "z"):
+                imgui.TableNextColumn()
+                imgui.TextDisabled(heading)
+            for label, values in (("Phone", state.phone_position), ("Target", state.target_position)):
+                if values is None:
+                    continue
+                imgui.TableNextRow()
+                imgui.TableNextColumn()
+                imgui.TextUnformatted(label)
+                for value in values:
+                    imgui.TableNextColumn()
+                    imgui.TextUnformatted(f"{value:+.3f}")
+            imgui.EndTable()
+
+        imgui.SeparatorText("Inputs")
+        _chip("Button", state.button)
+        imgui.SameLine(0, 18)
+        _chip("Toggle", state.toggle)
+
+    def _build_controls(self, state):
+        imgui.SeparatorText("Controls")
+        spacing = 8.0
+        width = max(70.0, (imgui.GetContentRegionAvail().x - 2 * spacing) / 3)
+        size = imgui.Vec2(width, 0)
+        if imgui.Button("Resume" if state.paused else "Pause", size):
             self.viewer.send_to_sim(TeleDexCommandEvent("resume" if state.paused else "pause"))
-        imgui.SameLine()
-        if imgui.Button("Recenter"):
+        if imgui.IsItemHovered():
+            imgui.SetTooltip("Hold the target still; resuming continues from where it is")
+        imgui.SameLine(0, spacing)
+        if imgui.Button("Recenter", size):
             self.viewer.send_to_sim(TeleDexCommandEvent("recenter"))
-        imgui.SameLine()
-        if imgui.Button("Refresh"):
+        if imgui.IsItemHovered():
+            imgui.SetTooltip("Make the phone's current pose the reference for the target's current pose")
+        imgui.SameLine(0, spacing)
+        if imgui.Button("Refresh", size):
             self.viewer.send_to_sim(TeleDexCommandEvent("refresh"))
         if imgui.IsItemHovered():
             imgui.SetTooltip("Re-detect this computer's address, e.g. after switching Wi-Fi")
@@ -353,8 +448,9 @@ class TeleDexPanel(plugin.ViewerPlugin):
         qr.add_data(payload)
         qr.make(fit=True)
         modules = np.array(qr.get_matrix(), dtype=bool)
+        module_px = max(2, self.QR_SIZE_PX // len(modules))  # whole pixels per square keep edges crisp
         pixels = np.where(modules, 0, 255).astype(np.uint8)
-        pixels = np.kron(pixels, np.ones((self.QR_MODULE_PX, self.QR_MODULE_PX), dtype=np.uint8))
+        pixels = np.kron(pixels, np.ones((module_px, module_px), dtype=np.uint8))
         rgba = np.stack([pixels, pixels, pixels, np.full_like(pixels, 255)], axis=-1)
         size = rgba.shape[0]
         self._qr_texture = self.viewer.upload_image(self._qr_texture, rgba.tobytes(), size, size, 4)
@@ -380,3 +476,41 @@ class TeleDexPanel(plugin.ViewerPlugin):
     def on_post_model(self, _: messages.PostModelEvent) -> None:
         self._state = None
         self._geoms = []  # the viewer clears extra_geoms on model load
+
+
+
+def _dot(colour, size=10.0):
+    """A small coloured square used as a status light."""
+    imgui.ColorButton("##dot", imgui.Vec4(*colour), _NO_TOOLTIP, imgui.Vec2(size, size))
+
+
+def _chip(label, on):
+    _dot(GREEN if on else IDLE)
+    imgui.SameLine()
+    if on:
+        imgui.TextUnformatted(label)
+    else:
+        imgui.TextDisabled(label)
+
+
+def _row(label, value, dim=False, colour=None):
+    imgui.TableNextRow()
+    imgui.TableNextColumn()
+    imgui.TextDisabled(label)
+    imgui.TableNextColumn()
+    if colour is not None:
+        imgui.TextColored(imgui.Vec4(*colour), value)
+    elif dim:
+        imgui.TextDisabled(value)
+    else:
+        imgui.TextUnformatted(value)
+
+
+def _centered(width):
+    """Move the cursor so an item of ``width`` pixels is centred in the window."""
+    available = imgui.GetContentRegionAvail().x
+    if available > width:
+        imgui.SetCursorPosX(imgui.GetCursorPosX() + (available - width) / 2)
+
+
+_NO_TOOLTIP = int(getattr(imgui.ColorEditFlags, "NoTooltip", 0)) | int(getattr(imgui.ColorEditFlags, "NoDragDrop", 0))
