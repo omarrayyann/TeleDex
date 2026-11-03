@@ -110,7 +110,8 @@ class TeleDexSim(plugin.SimPlugin):
         max_drot: Delta mode only: cap on rotation per step, in radians.
         position_limits: Optional (3, 2) [[xmin, xmax], [ymin, ymax], [zmin, zmax]] world bounds.
         disable_rot: Only drive position; keep the body's orientation.
-        gripper_actuator: Optional actuator name, or list of names, driven by the app's Toggle.
+        gripper_actuator: Actuator name, or list of names, driven by the app's Toggle. Defaults to
+                          the actuator named "gripper", if the model has one.
         gripper_ctrl: (open, closed) controls for the gripper actuators. Defaults to the low and
                       high ends of each actuator's ctrlrange.
         app_clip: Encode the QR code as a TeleDex App Clip link.
@@ -133,8 +134,9 @@ class TeleDexSim(plugin.SimPlugin):
         self.max_drot = max_drot
         self.position_limits = None if position_limits is None else np.asarray(position_limits, dtype=float)
         self.disable_rot = disable_rot
-        self.gripper_actuators = ([gripper_actuator] if isinstance(gripper_actuator, str)
-                                  else list(gripper_actuator or []))
+        self.gripper_actuators = (None if gripper_actuator is None
+                                  else [gripper_actuator] if isinstance(gripper_actuator, str)
+                                  else list(gripper_actuator))
         self.gripper_ctrl = gripper_ctrl
         self.app_clip = app_clip
         self.remote = remote
@@ -160,7 +162,8 @@ class TeleDexSim(plugin.SimPlugin):
 
     @messages.handler
     def on_sim_init(self, _: plugin.SimInitEvent) -> None:
-        self.session = Session(port=self.port, app_clip=self.app_clip, delta=True,
+        # The panel shows the QR code, so do not also print it in the terminal
+        self.session = Session(port=self.port, show_qr=False, app_clip=self.app_clip, delta=True,
                                remote=self.remote, signal_url=self.signal_url)
         self.session.start()
 
@@ -180,7 +183,10 @@ class TeleDexSim(plugin.SimPlugin):
             self._body_name = model.body(body_id).name
 
         self._actuator_ids = []
-        for name in self.gripper_actuators:
+        names = self.gripper_actuators
+        if names is None:  # by convention, drive an actuator named "gripper" if there is one
+            names = ["gripper"] if mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_ACTUATOR, "gripper") >= 0 else []
+        for name in names:
             actuator_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_ACTUATOR, name)
             if actuator_id < 0:
                 self._error = f'No actuator named "{name}"'
