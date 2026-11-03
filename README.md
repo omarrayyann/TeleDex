@@ -68,8 +68,10 @@ session.start()
 TeleDex ships a [MuJoCo Studio](https://mujoco.readthedocs.io/en/latest/studio/index.html) plugin that drives a mocap body and adds a TeleDex panel (QR code, status, live pose). It needs the MuJoCo nightly (`pip install --pre mujoco -f https://py.mujoco.org/`):
 
 ```bash
-python -m mujoco.studio.viewer --model=scene.xml --gfx=web --plugins=demos/studio_plugin.py
+python -m mujoco.studio.viewer --model=demos/scene0.xml --gfx=web --plugins=demos/studio_plugin.py
 ```
+
+`demos/scene0.xml` is a table of objects (put the marker in the mug); `demos/scene1.xml` is a slowly turning lazy Susan carrying plates of treats. Any scene works with a mocap body named `target`, and an actuator named `gripper` for the app's Toggle.
 
 ### Connecting Over the Internet
 

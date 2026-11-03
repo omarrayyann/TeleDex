@@ -24,7 +24,7 @@ def main():
     config = viewer_protocol.ViewerConfig(title="TeleDex", gfx="" if args.native else "web", open_browser=True)
     launch_passive.run(
         config,
-        model_path=os.path.join(os.path.dirname(__file__), "studio_scene.xml"),
+        model_path=os.path.join(os.path.dirname(__file__), "scene0.xml"),
         plugins=[
             *studio_plugins(),
             TeleDexSim(body="target", scale=1.5, mode=args.mode, max_dpos=0.02, app_clip=args.app_clip,

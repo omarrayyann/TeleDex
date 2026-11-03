@@ -1,0 +1,646 @@
+<mujoco model="main">
+<!-- TeleDex demo scene1: a lazy Susan turns slowly, carrying three plates of treats in a loop.
+     Pick treats off one plate and drop them on another as they come around.
+     The plugin drives the mocap body "target" and the actuator "gripper".
+
+     python -m mujoco.studio.viewer --model=demos/scene1.xml --gfx=web --plugins=demos/studio_plugin.py -->
+
+  
+  <compiler angle="radian" meshdir="assets" texturedir="assets" boundmass="1e-06" boundinertia="1e-08" />
+
+  <option impratio="10" integrator="implicitfast" cone="elliptic" />
+
+  <size memory="64M" />
+
+  <statistic extent="0.46" center="0.62 0 0.84" />
+
+  <visual>
+    <global azimuth="0" elevation="-30" />
+    <quality shadowsize="16384" offsamples="16" numslices="96" />
+    <headlight ambient="0.32 0.32 0.32" diffuse="0.32 0.32 0.32" specular="0.08 0.08 0.08" />
+    <map znear="0.0005" shadowclip="1.5" shadowscale="0.4" />
+  </visual>
+
+  <default>
+    <geom solref="0.005" />
+    <default class="place">
+      <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+    </default>
+    <default class="dinosaur/main">
+      <geom solref="0.02" />
+      <default class="dinosaur/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="glasses/main">
+      <geom solref="0.02" />
+      <default class="glasses/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="wooden_bowl/main">
+      <geom solref="0.02" />
+      <default class="wooden_bowl/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="granola_bars/main">
+      <geom solref="0.02" />
+      <default class="granola_bars/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="rubiks_cube/main">
+      <geom solref="0.02" />
+      <default class="rubiks_cube/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="keyboard/main">
+      <geom solref="0.02" />
+      <default class="keyboard/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="yogurt_cup/main">
+      <geom solref="0.02" />
+      <default class="yogurt_cup/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="oatmeal_raisin_cookies/main">
+      <geom solref="0.02" />
+      <default class="oatmeal_raisin_cookies/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="smartphone/main">
+      <geom solref="0.02" />
+      <default class="smartphone/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="ceramic_mug/main">
+      <geom solref="0.02" />
+      <default class="ceramic_mug/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="marker/main">
+      <geom solref="0.02" />
+      <default class="marker/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="gripper/main">
+      <geom solref="0.02" />
+      <default class="gripper/2f85">
+        <mesh scale="0.001 0.001 0.001" />
+        <general biastype="affine" />
+        <default class="gripper/driver">
+          <joint solreflimit="0.005" solimplimit="0.95 0.99" range="0 0.9" armature="0.005" damping="0.1" />
+        </default>
+        <default class="gripper/follower">
+          <joint solreflimit="0.005" solimplimit="0.95 0.99" range="-0.872664 0.9" armature="0.001" />
+        </default>
+        <default class="gripper/spring_link">
+          <joint stiffness="0.05" range="-0.296706 0.9" springref="2.62" armature="0.001" damping="0.00125" />
+        </default>
+        <default class="gripper/coupler">
+          <joint solreflimit="0.005" solimplimit="0.95 0.99" range="-1.57 0" armature="0.001" />
+        </default>
+        <default class="gripper/gripper_visual">
+          <geom type="mesh" contype="0" conaffinity="0" group="2" material="black" />
+        </default>
+        <default class="gripper/gripper_collision">
+          <geom type="mesh" group="3" />
+          <default class="gripper/pad_box1">
+            <geom size="0.002 0.011 0.009375" type="box" priority="1" friction="0.7" solref="0.004" solimp="0.95 0.99" rgba="0.55 0.55 0.55 1" />
+          </default>
+          <default class="gripper/pad_box2">
+            <geom size="0.002 0.011 0.009375" type="box" priority="1" friction="0.6" solref="0.004" solimp="0.95 0.99" rgba="0.45 0.45 0.45 1" />
+          </default>
+        </default>
+      </default>
+    </default>
+    <default class="plate0/main">
+      <geom solref="0.02" />
+      <default class="plate0/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="chocolate_glazed_donut/main">
+      <geom solref="0.02" />
+      <default class="chocolate_glazed_donut/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="chocolate_frosted_cupcake/main">
+      <geom solref="0.02" />
+      <default class="chocolate_frosted_cupcake/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="plate1/main">
+      <geom solref="0.02" />
+      <default class="plate1/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="kiwi/main">
+      <geom solref="0.02" />
+      <default class="kiwi/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="green_orange/main">
+      <geom solref="0.02" />
+      <default class="green_orange/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+    <default class="plate2/main">
+      <geom solref="0.02" />
+      <default class="plate2/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0" />
+      </default>
+    </default>
+  </default>
+
+  <asset>
+    <texture type="skybox" colorspace="auto" builtin="gradient" rgb1="1 1 1" rgb2="0.97 0.97 0.97" width="512" height="3072" />
+    <texture type="2d" colorspace="linear" name="appearance:tabletop" file="scene/OakVeneer01.png" />
+    <texture type="2d" colorspace="auto" name="groundplane" builtin="checker" mark="edge" rgb1="0.55 0.55 0.55" markrgb="0.6 0.6 0.6" width="300" height="300" />
+    <texture type="2d" colorspace="auto" name="tiles" builtin="checker" rgb1="0.66 0.68 0.66" rgb2="0.56 0.6 0.58" width="512" height="512" />
+    <texture type="2d" colorspace="sRGB" name="walnut" file="scene/walnut.png" />
+    <texture type="2d" colorspace="linear" name="turntable_wood" file="scene/LacqueredCherryWood.png" />
+    <texture type="2d" colorspace="linear" name="plate0/green_round_plate_0_tex" file="green_round_plate/0.png" />
+    <texture type="2d" colorspace="linear" name="chocolate_glazed_donut/chocolate_glazed_donut_0_tex" file="chocolate_glazed_donut/0.png" />
+    <texture type="2d" colorspace="linear" name="chocolate_frosted_cupcake/chocolate_frosted_cupcake_0_tex" file="chocolate_frosted_cupcake/0.png" />
+    <texture type="2d" colorspace="linear" name="plate1/green_round_plate_0_tex" file="green_round_plate/0.png" />
+    <texture type="2d" colorspace="linear" name="kiwi/kiwi_0_tex" file="kiwi/0.png" />
+    <texture type="2d" colorspace="linear" name="green_orange/green_orange_0_tex" file="green_orange/0.png" />
+    <texture type="2d" colorspace="linear" name="plate2/green_round_plate_0_tex" file="green_round_plate/0.png" />
+    <material name="black" rgba="0.12 0.12 0.12 1" />
+    <material name="white" rgba="0.9 0.9 0.9 1" />
+    <material name="wall_white" emission="0.6" />
+    <material name="groundplane" texture="groundplane" texrepeat="5 5" texuniform="true" reflectance="0.2" />
+    <material name="floor" texture="tiles" texrepeat="2 2" texuniform="true" specular="0.05" shininess="0.1" reflectance="0.02" />
+    <material name="tabletop" texture="appearance:tabletop" texuniform="true" specular="0.15" shininess="0.2" />
+    <material name="gripper/black" rgba="0.1 0.1 0.1 1" />
+    <material name="gripper/bolt" shininess="0.9" />
+    <material name="gripper/metal" rgba="0.58 0.58 0.58 1" />
+    <material name="turntable" texture="turntable_wood" specular="0.3" />
+    <material name="plate0/green_round_plate_0_skin" texture="plate0/green_round_plate_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5" />
+    <material name="chocolate_glazed_donut/chocolate_glazed_donut_0_skin" texture="chocolate_glazed_donut/chocolate_glazed_donut_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5" />
+    <material name="chocolate_frosted_cupcake/chocolate_frosted_cupcake_0_skin" texture="chocolate_frosted_cupcake/chocolate_frosted_cupcake_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5" />
+    <material name="plate1/green_round_plate_0_skin" texture="plate1/green_round_plate_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5" />
+    <material name="kiwi/kiwi_0_skin" texture="kiwi/kiwi_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5" />
+    <material name="green_orange/green_orange_0_skin" texture="green_orange/green_orange_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5" />
+    <material name="plate2/green_round_plate_0_skin" texture="plate2/green_round_plate_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5" />
+    <mesh name="camera_d405" content_type="model/stl" file="scene/d405.stl" />
+    <mesh name="gripper/base" content_type="model/stl" file="gripper/base.stl" />
+    <mesh name="gripper/base_coupling" content_type="model/stl" file="gripper/base_coupling.stl" />
+    <mesh name="gripper/c-a01-85-open" content_type="model/stl" file="gripper/c-a01-85-open.stl" />
+    <mesh name="gripper/driver" content_type="model/stl" file="gripper/driver.stl" />
+    <mesh name="gripper/coupler" content_type="model/stl" file="gripper/coupler.stl" />
+    <mesh name="gripper/spring_link" content_type="model/stl" file="gripper/spring_link.stl" />
+    <mesh name="gripper/follower" content_type="model/stl" file="gripper/follower.stl" />
+    <mesh name="gripper/tongue" content_type="model/stl" file="gripper/tongue.stl" />
+    <mesh name="plate0/green_round_plate_0_mesh" content_type="model/obj" file="green_round_plate/0.obj" />
+    <mesh name="plate0/green_round_plate_hull_00" content_type="model/obj" file="green_round_plate/h00.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_01" content_type="model/obj" file="green_round_plate/h01.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_02" content_type="model/obj" file="green_round_plate/h02.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_03" content_type="model/obj" file="green_round_plate/h03.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_04" content_type="model/obj" file="green_round_plate/h04.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_05" content_type="model/obj" file="green_round_plate/h05.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_06" content_type="model/obj" file="green_round_plate/h06.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_07" content_type="model/obj" file="green_round_plate/h07.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_08" content_type="model/obj" file="green_round_plate/h08.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_09" content_type="model/obj" file="green_round_plate/h09.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_10" content_type="model/obj" file="green_round_plate/h10.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_11" content_type="model/obj" file="green_round_plate/h11.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_12" content_type="model/obj" file="green_round_plate/h12.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_13" content_type="model/obj" file="green_round_plate/h13.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_14" content_type="model/obj" file="green_round_plate/h14.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_15" content_type="model/obj" file="green_round_plate/h15.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_16" content_type="model/obj" file="green_round_plate/h16.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_17" content_type="model/obj" file="green_round_plate/h17.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_18" content_type="model/obj" file="green_round_plate/h18.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_19" content_type="model/obj" file="green_round_plate/h19.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_20" content_type="model/obj" file="green_round_plate/h20.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_21" content_type="model/obj" file="green_round_plate/h21.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_22" content_type="model/obj" file="green_round_plate/h22.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_23" content_type="model/obj" file="green_round_plate/h23.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_24" content_type="model/obj" file="green_round_plate/h24.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_25" content_type="model/obj" file="green_round_plate/h25.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_26" content_type="model/obj" file="green_round_plate/h26.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_27" content_type="model/obj" file="green_round_plate/h27.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_28" content_type="model/obj" file="green_round_plate/h28.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_29" content_type="model/obj" file="green_round_plate/h29.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_30" content_type="model/obj" file="green_round_plate/h30.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_31" content_type="model/obj" file="green_round_plate/h31.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_hull_32" content_type="model/obj" file="green_round_plate/h32.obj" maxhullvert="128" />
+    <mesh name="plate0/green_round_plate_inside" content_type="model/obj" file="green_round_plate/inside.obj" />
+    <mesh name="plate0/green_round_plate_top" content_type="model/obj" file="green_round_plate/top.obj" />
+    <mesh name="chocolate_glazed_donut/chocolate_glazed_donut_0_mesh" content_type="model/obj" file="chocolate_glazed_donut/0.obj" />
+    <mesh name="chocolate_glazed_donut/chocolate_glazed_donut_hull_00" content_type="model/obj" file="chocolate_glazed_donut/h00.obj" maxhullvert="128" />
+    <mesh name="chocolate_glazed_donut/chocolate_glazed_donut_hull_01" content_type="model/obj" file="chocolate_glazed_donut/h01.obj" maxhullvert="128" />
+    <mesh name="chocolate_glazed_donut/chocolate_glazed_donut_hull_02" content_type="model/obj" file="chocolate_glazed_donut/h02.obj" maxhullvert="128" />
+    <mesh name="chocolate_glazed_donut/chocolate_glazed_donut_hull_03" content_type="model/obj" file="chocolate_glazed_donut/h03.obj" maxhullvert="128" />
+    <mesh name="chocolate_glazed_donut/chocolate_glazed_donut_hull_04" content_type="model/obj" file="chocolate_glazed_donut/h04.obj" maxhullvert="128" />
+    <mesh name="chocolate_glazed_donut/chocolate_glazed_donut_hull_05" content_type="model/obj" file="chocolate_glazed_donut/h05.obj" maxhullvert="128" />
+    <mesh name="chocolate_glazed_donut/chocolate_glazed_donut_hull_06" content_type="model/obj" file="chocolate_glazed_donut/h06.obj" maxhullvert="128" />
+    <mesh name="chocolate_glazed_donut/chocolate_glazed_donut_hull_07" content_type="model/obj" file="chocolate_glazed_donut/h07.obj" maxhullvert="128" />
+    <mesh name="chocolate_glazed_donut/chocolate_glazed_donut_hull_08" content_type="model/obj" file="chocolate_glazed_donut/h08.obj" maxhullvert="128" />
+    <mesh name="chocolate_glazed_donut/chocolate_glazed_donut_hull_09" content_type="model/obj" file="chocolate_glazed_donut/h09.obj" maxhullvert="128" />
+    <mesh name="chocolate_glazed_donut/chocolate_glazed_donut_hull_10" content_type="model/obj" file="chocolate_glazed_donut/h10.obj" maxhullvert="128" />
+    <mesh name="chocolate_glazed_donut/chocolate_glazed_donut_hull_11" content_type="model/obj" file="chocolate_glazed_donut/h11.obj" maxhullvert="128" />
+    <mesh name="chocolate_glazed_donut/chocolate_glazed_donut_hull_12" content_type="model/obj" file="chocolate_glazed_donut/h12.obj" maxhullvert="128" />
+    <mesh name="chocolate_glazed_donut/chocolate_glazed_donut_top" content_type="model/obj" file="chocolate_glazed_donut/top.obj" />
+    <mesh name="chocolate_frosted_cupcake/chocolate_frosted_cupcake_0_mesh" content_type="model/obj" file="chocolate_frosted_cupcake/0.obj" />
+    <mesh name="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_00" content_type="model/obj" file="chocolate_frosted_cupcake/h00.obj" maxhullvert="128" />
+    <mesh name="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_01" content_type="model/obj" file="chocolate_frosted_cupcake/h01.obj" maxhullvert="128" />
+    <mesh name="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_02" content_type="model/obj" file="chocolate_frosted_cupcake/h02.obj" maxhullvert="128" />
+    <mesh name="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_03" content_type="model/obj" file="chocolate_frosted_cupcake/h03.obj" maxhullvert="128" />
+    <mesh name="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_04" content_type="model/obj" file="chocolate_frosted_cupcake/h04.obj" maxhullvert="128" />
+    <mesh name="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_05" content_type="model/obj" file="chocolate_frosted_cupcake/h05.obj" maxhullvert="128" />
+    <mesh name="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_06" content_type="model/obj" file="chocolate_frosted_cupcake/h06.obj" maxhullvert="128" />
+    <mesh name="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_07" content_type="model/obj" file="chocolate_frosted_cupcake/h07.obj" maxhullvert="128" />
+    <mesh name="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_08" content_type="model/obj" file="chocolate_frosted_cupcake/h08.obj" maxhullvert="128" />
+    <mesh name="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_09" content_type="model/obj" file="chocolate_frosted_cupcake/h09.obj" maxhullvert="128" />
+    <mesh name="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_10" content_type="model/obj" file="chocolate_frosted_cupcake/h10.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_0_mesh" content_type="model/obj" file="green_round_plate/0.obj" />
+    <mesh name="plate1/green_round_plate_hull_00" content_type="model/obj" file="green_round_plate/h00.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_01" content_type="model/obj" file="green_round_plate/h01.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_02" content_type="model/obj" file="green_round_plate/h02.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_03" content_type="model/obj" file="green_round_plate/h03.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_04" content_type="model/obj" file="green_round_plate/h04.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_05" content_type="model/obj" file="green_round_plate/h05.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_06" content_type="model/obj" file="green_round_plate/h06.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_07" content_type="model/obj" file="green_round_plate/h07.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_08" content_type="model/obj" file="green_round_plate/h08.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_09" content_type="model/obj" file="green_round_plate/h09.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_10" content_type="model/obj" file="green_round_plate/h10.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_11" content_type="model/obj" file="green_round_plate/h11.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_12" content_type="model/obj" file="green_round_plate/h12.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_13" content_type="model/obj" file="green_round_plate/h13.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_14" content_type="model/obj" file="green_round_plate/h14.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_15" content_type="model/obj" file="green_round_plate/h15.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_16" content_type="model/obj" file="green_round_plate/h16.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_17" content_type="model/obj" file="green_round_plate/h17.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_18" content_type="model/obj" file="green_round_plate/h18.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_19" content_type="model/obj" file="green_round_plate/h19.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_20" content_type="model/obj" file="green_round_plate/h20.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_21" content_type="model/obj" file="green_round_plate/h21.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_22" content_type="model/obj" file="green_round_plate/h22.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_23" content_type="model/obj" file="green_round_plate/h23.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_24" content_type="model/obj" file="green_round_plate/h24.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_25" content_type="model/obj" file="green_round_plate/h25.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_26" content_type="model/obj" file="green_round_plate/h26.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_27" content_type="model/obj" file="green_round_plate/h27.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_28" content_type="model/obj" file="green_round_plate/h28.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_29" content_type="model/obj" file="green_round_plate/h29.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_30" content_type="model/obj" file="green_round_plate/h30.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_31" content_type="model/obj" file="green_round_plate/h31.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_hull_32" content_type="model/obj" file="green_round_plate/h32.obj" maxhullvert="128" />
+    <mesh name="plate1/green_round_plate_inside" content_type="model/obj" file="green_round_plate/inside.obj" />
+    <mesh name="plate1/green_round_plate_top" content_type="model/obj" file="green_round_plate/top.obj" />
+    <mesh name="kiwi/kiwi_0_mesh" content_type="model/obj" file="kiwi/0.obj" />
+    <mesh name="kiwi/kiwi_hull_00" content_type="model/obj" file="kiwi/h00.obj" maxhullvert="128" />
+    <mesh name="green_orange/green_orange_0_mesh" content_type="model/obj" file="green_orange/0.obj" />
+    <mesh name="green_orange/green_orange_hull_00" content_type="model/obj" file="green_orange/h00.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_0_mesh" content_type="model/obj" file="green_round_plate/0.obj" />
+    <mesh name="plate2/green_round_plate_hull_00" content_type="model/obj" file="green_round_plate/h00.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_01" content_type="model/obj" file="green_round_plate/h01.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_02" content_type="model/obj" file="green_round_plate/h02.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_03" content_type="model/obj" file="green_round_plate/h03.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_04" content_type="model/obj" file="green_round_plate/h04.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_05" content_type="model/obj" file="green_round_plate/h05.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_06" content_type="model/obj" file="green_round_plate/h06.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_07" content_type="model/obj" file="green_round_plate/h07.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_08" content_type="model/obj" file="green_round_plate/h08.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_09" content_type="model/obj" file="green_round_plate/h09.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_10" content_type="model/obj" file="green_round_plate/h10.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_11" content_type="model/obj" file="green_round_plate/h11.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_12" content_type="model/obj" file="green_round_plate/h12.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_13" content_type="model/obj" file="green_round_plate/h13.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_14" content_type="model/obj" file="green_round_plate/h14.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_15" content_type="model/obj" file="green_round_plate/h15.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_16" content_type="model/obj" file="green_round_plate/h16.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_17" content_type="model/obj" file="green_round_plate/h17.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_18" content_type="model/obj" file="green_round_plate/h18.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_19" content_type="model/obj" file="green_round_plate/h19.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_20" content_type="model/obj" file="green_round_plate/h20.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_21" content_type="model/obj" file="green_round_plate/h21.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_22" content_type="model/obj" file="green_round_plate/h22.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_23" content_type="model/obj" file="green_round_plate/h23.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_24" content_type="model/obj" file="green_round_plate/h24.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_25" content_type="model/obj" file="green_round_plate/h25.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_26" content_type="model/obj" file="green_round_plate/h26.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_27" content_type="model/obj" file="green_round_plate/h27.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_28" content_type="model/obj" file="green_round_plate/h28.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_29" content_type="model/obj" file="green_round_plate/h29.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_30" content_type="model/obj" file="green_round_plate/h30.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_31" content_type="model/obj" file="green_round_plate/h31.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_hull_32" content_type="model/obj" file="green_round_plate/h32.obj" maxhullvert="128" />
+    <mesh name="plate2/green_round_plate_inside" content_type="model/obj" file="green_round_plate/inside.obj" />
+    <mesh name="plate2/green_round_plate_top" content_type="model/obj" file="green_round_plate/top.obj" />
+  </asset>
+
+  <worldbody>
+    <geom name="table_plane" size="0.35 0.5 0.375" pos="0.6 0 0.398844" type="box" group="3" priority="1" friction="0.9" rgba="0 0 0 0" />
+    <camera name="preview" quat="0.619211 0.341435 -0.341435 -0.619211" pos="-0.62 0 1.55" fovy="38" />
+    <camera name="dashboard" quat="0.650895 0.276289 -0.276289 -0.650895" pos="0.107445 -0.005 1.32959" fovy="70" />
+    <light name="key" pos="-0.2 0.9 1.6" dir="0.543915 -0.593362 -0.593362" diffuse="0.78 0.77 0.75" type="directional" />
+    <light name="fill" castshadow="false" pos="1.2 -0.9 1.4" dir="-0.507673 0.609208 -0.609208" diffuse="0.2 0.2 0.21" specular="0 0 0" type="directional" />
+    <body name="play_table" pos="0 0 0.0238438">
+      <geom name="table_border" size="0.3625 0.511905 0.0049" pos="0.6 0 0.7449" type="box" contype="0" conaffinity="0" group="2" rgba="0 0 0 1" />
+      <geom name="table_top" size="0.35 0.5 0.005" pos="0.6 0 0.745" type="box" contype="0" conaffinity="0" group="2" rgba="1 1 1 1" material="tabletop" />
+    </body>
+    <body name="target" pos="0.42 0 0.98" quat="0 0.707107 -0.707107 0" mocap="true" />
+    <body name="gripper/base" childclass="gripper/2f85" pos="0.42 0 1.125" quat="0 0.707107 -0.707107 0" gravcomp="1">
+      <inertial pos="0 -2.70394e-05 0.0354675" quat="0.999999 -0.00152849 0 0" mass="0.777441" diaginertia="0.000260285 0.000225381 0.000152708" />
+      <joint name="gripper/free" type="free" />
+      <geom class="gripper/gripper_visual" pos="0 0 0.0108" quat="0 0 0 1" material="gripper/black" mesh="gripper/base" />
+      <geom class="gripper/gripper_visual" pos="0 0 0.004" quat="0.707107 -0.707107 0 0" material="gripper/black" mesh="gripper/base_coupling" />
+      <geom class="gripper/gripper_visual" pos="0 0 0.0108" quat="1 0 0 0" material="gripper/metal" mesh="gripper/c-a01-85-open" />
+      <geom class="gripper/gripper_collision" quat="1 0 0 0" mesh="gripper/base" />
+      <site name="gripper/tcp" size="0.002" pos="0 0 0.145" rgba="1 0 0 0" />
+      <body name="gripper/left_driver" pos="-0.0306011 0.00475 0.0657045" quat="0.707107 -0.707107 0 0" gravcomp="1">
+        <inertial pos="0 0.0177547 0.00107314" quat="0.681301 0.732003 0 0" mass="0.00899563" diaginertia="1.72352e-06 1.60906e-06 3.22006e-07" />
+        <joint name="gripper/left_driver_joint" class="gripper/driver" />
+        <geom class="gripper/gripper_visual" pos="0.0306011 0.0549045 -0.0047" quat="0.707107 0.707107 0 0" material="gripper/metal" mesh="gripper/driver" />
+        <geom class="gripper/gripper_collision" pos="0.0306011 0.0549045 -0.0047" quat="0.707107 0.707107 0 0" mesh="gripper/driver" />
+        <body name="gripper/left_coupler" pos="-0.0314249 0.00453223 -0.0102" quat="0 0 0 1" gravcomp="1">
+          <inertial pos="0 0.00301209 0.0232175" quat="0.705636 -0.0455904 0.0455904 0.705636" mass="0.0140974" diaginertia="4.16206e-06 3.52216e-06 8.88131e-07" />
+          <geom name="gripper/left_bolt_1" size="0.003 0.0138" pos="0.0064 0.047 0.0055" type="cylinder" material="gripper/bolt" />
+          <geom class="gripper/gripper_visual" pos="-0.062026 -0.0503723 0.0055" quat="0.707107 -0.707107 0 0" material="gripper/black" mesh="gripper/coupler" />
+          <geom class="gripper/gripper_collision" pos="-0.062026 -0.0503723 0.0055" quat="0.707107 -0.707107 0 0" mesh="gripper/coupler" />
+        </body>
+      </body>
+      <body name="gripper/left_spring_link" pos="-0.0127 -0.012 0.07222" quat="0.707107 -0.707107 0 0" gravcomp="1">
+        <inertial pos="-8.65005e-09 0.0181624 0.0212658" quat="0.663403 -0.244737 0.244737 0.663403" mass="0.0221642" diaginertia="8.96853e-06 6.71733e-06 2.63931e-06" />
+        <joint name="gripper/left_spring_link_joint" class="gripper/spring_link" />
+        <geom class="gripper/gripper_visual" pos="0.0127 0.06142 0.01205" quat="0.707107 0.707107 0 0" material="gripper/black" mesh="gripper/spring_link" />
+        <geom class="gripper/gripper_collision" pos="0.0127 0.06142 0.01205" quat="0.707107 0.707107 0 0" mesh="gripper/spring_link" />
+        <body name="gripper/left_follower" pos="-0.0382079 -0.0425003 0.00295" quat="0 -1 -1.90231e-05 0" gravcomp="1">
+          <inertial pos="0 -0.011046 0.0124786" quat="0.986437 0.164143 0 0" mass="0.0125222" diaginertia="2.67415e-06 2.4559e-06 6.02031e-07" />
+          <joint name="gripper/left_follower" class="gripper/follower" />
+          <geom name="gripper/left_bolt_2" size="0.003 0.0138" pos="0 0 -0.009" type="cylinder" material="gripper/bolt" />
+          <geom class="gripper/gripper_visual" pos="0.052 -0.10392 -0.0091" quat="0.707107 -0.707107 0 0" material="gripper/black" mesh="gripper/follower" />
+          <geom class="gripper/gripper_visual" pos="0.052 -0.10392 -0.0091" quat="0.707107 -0.707107 0 0" material="gripper/black" mesh="gripper/tongue" />
+          <geom class="gripper/gripper_collision" pos="0.052 -0.10392 -0.0091" quat="0.707107 -0.707107 0 0" mesh="gripper/follower" />
+          <geom class="gripper/gripper_collision" pos="0.052 -0.10392 -0.0091" quat="0.707107 -0.707107 0 0" mesh="gripper/tongue" />
+          <body name="gripper/left_pad" pos="-0.0377897 -0.103916 -0.0091" quat="0.707107 -0.707107 0 0" gravcomp="1">
+            <geom name="gripper/left_pad1" class="gripper/pad_box1" pos="0.043258 0 0.12" mass="1e-06" />
+            <geom name="gripper/left_pad2" class="gripper/pad_box2" pos="0.043258 0 0.13875" mass="1e-06" />
+          </body>
+        </body>
+      </body>
+      <body name="gripper/right_driver" pos="0.0306011 -0.00475 0.0657045" quat="0 0 -0.707107 0.707107" gravcomp="1">
+        <inertial pos="2.96931e-12 0.0177547 0.00107314" quat="0.681301 0.732003 0 0" mass="0.00899563" diaginertia="1.72352e-06 1.60906e-06 3.22006e-07" />
+        <joint name="gripper/right_driver_joint" class="gripper/driver" />
+        <geom class="gripper/gripper_visual" pos="0.0306011 0.0549045 -0.0047" quat="0.707107 0.707107 0 0" material="gripper/metal" mesh="gripper/driver" />
+        <geom class="gripper/gripper_collision" pos="0.0306011 0.0549045 -0.0047" quat="0.707107 0.707107 0 0" mesh="gripper/driver" />
+        <body name="gripper/right_coupler" pos="-0.0314249 0.00453223 -0.0102" quat="0 0 0 1" gravcomp="1">
+          <inertial pos="0 0.00301209 0.0232175" quat="0.705636 -0.0455904 0.0455904 0.705636" mass="0.0140974" diaginertia="4.16206e-06 3.52216e-06 8.88131e-07" />
+          <geom name="gripper/right_bolt_1" size="0.003 0.0138" pos="0.0064 0.047 0.0055" type="cylinder" material="gripper/bolt" />
+          <geom class="gripper/gripper_visual" pos="-0.062026 -0.0503723 0.0055" quat="0.707107 -0.707107 0 0" material="gripper/black" mesh="gripper/coupler" />
+          <geom class="gripper/gripper_collision" pos="-0.062026 -0.0503723 0.0055" quat="0.707107 -0.707107 0 0" mesh="gripper/coupler" />
+        </body>
+      </body>
+      <body name="gripper/right_spring_link" pos="0.0127 0.012 0.07222" quat="0 0 -0.707107 0.707107" gravcomp="1">
+        <inertial pos="-8.65005e-09 0.0181624 0.0212658" quat="0.663403 -0.244737 0.244737 0.663403" mass="0.0221642" diaginertia="8.96853e-06 6.71733e-06 2.63931e-06" />
+        <joint name="gripper/right_spring_link_joint" class="gripper/spring_link" />
+        <geom class="gripper/gripper_visual" pos="0.0127 0.06142 0.01205" quat="0.707107 0.707107 0 0" material="gripper/black" mesh="gripper/spring_link" />
+        <geom class="gripper/gripper_collision" pos="0.0127 0.06142 0.01205" quat="0.707107 0.707107 0 0" mesh="gripper/spring_link" />
+        <body name="gripper/right_follower" pos="-0.0382079 -0.0425003 0.00295" quat="0 -1 0 0" gravcomp="1">
+          <inertial pos="0 -0.011046 0.0124786" quat="0.986437 0.164143 0 0" mass="0.0125222" diaginertia="2.67415e-06 2.4559e-06 6.02031e-07" />
+          <joint name="gripper/right_follower_joint" class="gripper/follower" />
+          <geom name="gripper/right_bolt_2" size="0.003 0.0138" pos="0 0 -0.009" type="cylinder" material="gripper/bolt" />
+          <geom class="gripper/gripper_visual" pos="0.052 -0.10392 -0.0091" quat="0.707107 -0.707107 0 0" material="gripper/black" mesh="gripper/tongue" />
+          <geom class="gripper/gripper_visual" pos="0.052 -0.10392 -0.0091" quat="0.707107 -0.707107 0 0" material="gripper/black" mesh="gripper/follower" />
+          <geom class="gripper/gripper_collision" pos="0.052 -0.10392 -0.0091" quat="0.707107 -0.707107 0 0" mesh="gripper/tongue" />
+          <geom class="gripper/gripper_collision" pos="0.052 -0.10392 -0.0091" quat="0.707107 -0.707107 0 0" mesh="gripper/follower" />
+          <body name="gripper/right_pad" pos="-0.0377897 -0.103916 -0.0091" quat="0.707107 -0.707107 0 0" gravcomp="1">
+            <geom name="gripper/right_pad1" class="gripper/pad_box1" pos="0.043258 0 0.12" mass="1e-06" />
+            <geom name="gripper/right_pad2" class="gripper/pad_box2" pos="0.043258 0 0.13875" mass="1e-06" />
+          </body>
+        </body>
+      </body>
+    </body>
+    <body name="turntable" pos="0.6 0 0.775844">
+      <joint name="turntable" armature="0.05" damping="0.5" />
+      <geom name="turntable" size="0.29 0.012" pos="0 0 0.012" type="cylinder" friction="1 0.01 0.001" density="600" material="turntable" />
+      <geom name="turntable_rim" size="0.294 0.003" pos="0 0 0.003" type="cylinder" contype="0" conaffinity="0" rgba="0.12 0.09 0.07 1" />
+      <frame pos="0.175 0 0.0264586">
+        <body name="plate0/green_round_plate">
+          <geom quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="plate0/green_round_plate_0_skin" mesh="plate0/green_round_plate_0_mesh" />
+          <geom pos="-3.33067e-16 -1.249e-16 -2.08167e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00742232" mesh="plate0/green_round_plate_hull_00" />
+          <geom pos="1.8735e-16 -4.71845e-16 -4.16334e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00798664" mesh="plate0/green_round_plate_hull_01" />
+          <geom pos="2.32453e-16 5.96745e-16 -4.59702e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00836834" mesh="plate0/green_round_plate_hull_02" />
+          <geom pos="-4.02456e-16 1.70003e-16 -2.1684e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00883706" mesh="plate0/green_round_plate_hull_03" />
+          <geom pos="2.77556e-16 -5.89806e-17 -6.245e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00491673" mesh="plate0/green_round_plate_hull_04" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00483898" mesh="plate0/green_round_plate_hull_05" />
+          <geom pos="3.33067e-16 5.55112e-17 -7.28584e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00443394" mesh="plate0/green_round_plate_hull_06" />
+          <geom pos="-1.94289e-16 -4.64906e-16 -3.46945e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0101692" mesh="plate0/green_round_plate_hull_07" />
+          <geom pos="-2.74086e-16 -2.08167e-16 -4.16334e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0100964" mesh="plate0/green_round_plate_hull_08" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0210386" mesh="plate0/green_round_plate_hull_09" />
+          <geom pos="4.71845e-16 -8.09763e-19 -3.90313e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0208805" mesh="plate0/green_round_plate_hull_10" />
+          <geom pos="-9.36751e-17 5.27356e-16 -1.11022e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00491336" mesh="plate0/green_round_plate_hull_11" />
+          <geom pos="3.46945e-16 4.71845e-16 -1.2837e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.005667" mesh="plate0/green_round_plate_hull_12" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00944382" mesh="plate0/green_round_plate_hull_13" />
+          <geom pos="-2.25514e-16 5.82867e-16 -3.64292e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00929587" mesh="plate0/green_round_plate_hull_14" />
+          <geom pos="4.02456e-16 -5.41234e-16 -1.56125e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00440092" mesh="plate0/green_round_plate_hull_15" />
+          <geom pos="-3.60822e-16 7.28584e-17 -6.59195e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00469401" mesh="plate0/green_round_plate_hull_16" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00513181" mesh="plate0/green_round_plate_hull_17" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00198649" mesh="plate0/green_round_plate_hull_18" />
+          <geom pos="-4.23273e-16 -7.07767e-16 -2.01228e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00208274" mesh="plate0/green_round_plate_hull_19" />
+          <geom pos="4.16334e-16 -2.98372e-16 -7.97973e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00177854" mesh="plate0/green_round_plate_hull_20" />
+          <geom pos="-3.26128e-16 -4.996e-16 -8.67362e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00186789" mesh="plate0/green_round_plate_hull_21" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00162173" mesh="plate0/green_round_plate_hull_22" />
+          <geom pos="-1.07553e-16 -5.96745e-16 -1.52656e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00223383" mesh="plate0/green_round_plate_hull_23" />
+          <geom pos="-7.21645e-16 -4.30211e-16 -1.70003e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00284391" mesh="plate0/green_round_plate_hull_24" />
+          <geom pos="-1.2837e-16 -6.52256e-16 -9.36751e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00182131" mesh="plate0/green_round_plate_hull_25" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0020151" mesh="plate0/green_round_plate_hull_26" />
+          <geom pos="1.2837e-16 6.10623e-16 -1.2837e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0051376" mesh="plate0/green_round_plate_hull_27" />
+          <geom pos="4.02456e-16 2.498e-16 -7.45931e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00173721" mesh="plate0/green_round_plate_hull_28" />
+          <geom pos="-2.84495e-16 4.85723e-16 -1.38778e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00205694" mesh="plate0/green_round_plate_hull_29" />
+          <geom pos="1.21431e-16 -5.27356e-16 -1.14492e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00535517" mesh="plate0/green_round_plate_hull_30" />
+          <geom pos="-4.02456e-16 5.82867e-16 -1.02349e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00187971" mesh="plate0/green_round_plate_hull_31" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.143046" mesh="plate0/green_round_plate_hull_32" />
+          <geom name="plate0/place:bounds" class="plate0/place" size="0.1035 0.1033 0.0161" pos="0 0 0.0161" type="box" mass="0" />
+          <geom name="plate0/place:inside" class="plate0/place" quat="1 0 0 0" type="mesh" mass="0" mesh="plate0/green_round_plate_inside" />
+          <geom name="plate0/place:top" class="plate0/place" pos="-5.31937e-19 8.67362e-19 -6.52256e-16" quat="1 0 0 0" type="mesh" mass="0" mesh="plate0/green_round_plate_top" />
+        </body>
+      </frame>
+      <frame pos="-0.0875 0.151554 0.0264586">
+        <body name="plate1/green_round_plate">
+          <geom quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="plate1/green_round_plate_0_skin" mesh="plate1/green_round_plate_0_mesh" />
+          <geom pos="-3.33067e-16 -1.249e-16 -2.08167e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00742232" mesh="plate1/green_round_plate_hull_00" />
+          <geom pos="1.8735e-16 -4.71845e-16 -4.16334e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00798664" mesh="plate1/green_round_plate_hull_01" />
+          <geom pos="2.32453e-16 5.96745e-16 -4.59702e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00836834" mesh="plate1/green_round_plate_hull_02" />
+          <geom pos="-4.02456e-16 1.70003e-16 -2.1684e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00883706" mesh="plate1/green_round_plate_hull_03" />
+          <geom pos="2.77556e-16 -5.89806e-17 -6.245e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00491673" mesh="plate1/green_round_plate_hull_04" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00483898" mesh="plate1/green_round_plate_hull_05" />
+          <geom pos="3.33067e-16 5.55112e-17 -7.28584e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00443394" mesh="plate1/green_round_plate_hull_06" />
+          <geom pos="-1.94289e-16 -4.64906e-16 -3.46945e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0101692" mesh="plate1/green_round_plate_hull_07" />
+          <geom pos="-2.74086e-16 -2.08167e-16 -4.16334e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0100964" mesh="plate1/green_round_plate_hull_08" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0210386" mesh="plate1/green_round_plate_hull_09" />
+          <geom pos="4.71845e-16 -8.09763e-19 -3.90313e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0208805" mesh="plate1/green_round_plate_hull_10" />
+          <geom pos="-9.36751e-17 5.27356e-16 -1.11022e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00491336" mesh="plate1/green_round_plate_hull_11" />
+          <geom pos="3.46945e-16 4.71845e-16 -1.2837e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.005667" mesh="plate1/green_round_plate_hull_12" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00944382" mesh="plate1/green_round_plate_hull_13" />
+          <geom pos="-2.25514e-16 5.82867e-16 -3.64292e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00929587" mesh="plate1/green_round_plate_hull_14" />
+          <geom pos="4.02456e-16 -5.41234e-16 -1.56125e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00440092" mesh="plate1/green_round_plate_hull_15" />
+          <geom pos="-3.60822e-16 7.28584e-17 -6.59195e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00469401" mesh="plate1/green_round_plate_hull_16" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00513181" mesh="plate1/green_round_plate_hull_17" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00198649" mesh="plate1/green_round_plate_hull_18" />
+          <geom pos="-4.23273e-16 -7.07767e-16 -2.01228e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00208274" mesh="plate1/green_round_plate_hull_19" />
+          <geom pos="4.16334e-16 -2.98372e-16 -7.97973e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00177854" mesh="plate1/green_round_plate_hull_20" />
+          <geom pos="-3.26128e-16 -4.996e-16 -8.67362e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00186789" mesh="plate1/green_round_plate_hull_21" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00162173" mesh="plate1/green_round_plate_hull_22" />
+          <geom pos="-1.07553e-16 -5.96745e-16 -1.52656e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00223383" mesh="plate1/green_round_plate_hull_23" />
+          <geom pos="-7.21645e-16 -4.30211e-16 -1.70003e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00284391" mesh="plate1/green_round_plate_hull_24" />
+          <geom pos="-1.2837e-16 -6.52256e-16 -9.36751e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00182131" mesh="plate1/green_round_plate_hull_25" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0020151" mesh="plate1/green_round_plate_hull_26" />
+          <geom pos="1.2837e-16 6.10623e-16 -1.2837e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0051376" mesh="plate1/green_round_plate_hull_27" />
+          <geom pos="4.02456e-16 2.498e-16 -7.45931e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00173721" mesh="plate1/green_round_plate_hull_28" />
+          <geom pos="-2.84495e-16 4.85723e-16 -1.38778e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00205694" mesh="plate1/green_round_plate_hull_29" />
+          <geom pos="1.21431e-16 -5.27356e-16 -1.14492e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00535517" mesh="plate1/green_round_plate_hull_30" />
+          <geom pos="-4.02456e-16 5.82867e-16 -1.02349e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00187971" mesh="plate1/green_round_plate_hull_31" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.143046" mesh="plate1/green_round_plate_hull_32" />
+          <geom name="plate1/place:bounds" class="plate1/place" size="0.1035 0.1033 0.0161" pos="0 0 0.0161" type="box" mass="0" />
+          <geom name="plate1/place:inside" class="plate1/place" quat="1 0 0 0" type="mesh" mass="0" mesh="plate1/green_round_plate_inside" />
+          <geom name="plate1/place:top" class="plate1/place" pos="-5.31937e-19 8.67362e-19 -6.52256e-16" quat="1 0 0 0" type="mesh" mass="0" mesh="plate1/green_round_plate_top" />
+        </body>
+      </frame>
+      <frame pos="-0.0875 -0.151554 0.0264586">
+        <body name="plate2/green_round_plate">
+          <geom quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="plate2/green_round_plate_0_skin" mesh="plate2/green_round_plate_0_mesh" />
+          <geom pos="-3.33067e-16 -1.249e-16 -2.08167e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00742232" mesh="plate2/green_round_plate_hull_00" />
+          <geom pos="1.8735e-16 -4.71845e-16 -4.16334e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00798664" mesh="plate2/green_round_plate_hull_01" />
+          <geom pos="2.32453e-16 5.96745e-16 -4.59702e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00836834" mesh="plate2/green_round_plate_hull_02" />
+          <geom pos="-4.02456e-16 1.70003e-16 -2.1684e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00883706" mesh="plate2/green_round_plate_hull_03" />
+          <geom pos="2.77556e-16 -5.89806e-17 -6.245e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00491673" mesh="plate2/green_round_plate_hull_04" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00483898" mesh="plate2/green_round_plate_hull_05" />
+          <geom pos="3.33067e-16 5.55112e-17 -7.28584e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00443394" mesh="plate2/green_round_plate_hull_06" />
+          <geom pos="-1.94289e-16 -4.64906e-16 -3.46945e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0101692" mesh="plate2/green_round_plate_hull_07" />
+          <geom pos="-2.74086e-16 -2.08167e-16 -4.16334e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0100964" mesh="plate2/green_round_plate_hull_08" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0210386" mesh="plate2/green_round_plate_hull_09" />
+          <geom pos="4.71845e-16 -8.09763e-19 -3.90313e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0208805" mesh="plate2/green_round_plate_hull_10" />
+          <geom pos="-9.36751e-17 5.27356e-16 -1.11022e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00491336" mesh="plate2/green_round_plate_hull_11" />
+          <geom pos="3.46945e-16 4.71845e-16 -1.2837e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.005667" mesh="plate2/green_round_plate_hull_12" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00944382" mesh="plate2/green_round_plate_hull_13" />
+          <geom pos="-2.25514e-16 5.82867e-16 -3.64292e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00929587" mesh="plate2/green_round_plate_hull_14" />
+          <geom pos="4.02456e-16 -5.41234e-16 -1.56125e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00440092" mesh="plate2/green_round_plate_hull_15" />
+          <geom pos="-3.60822e-16 7.28584e-17 -6.59195e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00469401" mesh="plate2/green_round_plate_hull_16" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00513181" mesh="plate2/green_round_plate_hull_17" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00198649" mesh="plate2/green_round_plate_hull_18" />
+          <geom pos="-4.23273e-16 -7.07767e-16 -2.01228e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00208274" mesh="plate2/green_round_plate_hull_19" />
+          <geom pos="4.16334e-16 -2.98372e-16 -7.97973e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00177854" mesh="plate2/green_round_plate_hull_20" />
+          <geom pos="-3.26128e-16 -4.996e-16 -8.67362e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00186789" mesh="plate2/green_round_plate_hull_21" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00162173" mesh="plate2/green_round_plate_hull_22" />
+          <geom pos="-1.07553e-16 -5.96745e-16 -1.52656e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00223383" mesh="plate2/green_round_plate_hull_23" />
+          <geom pos="-7.21645e-16 -4.30211e-16 -1.70003e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00284391" mesh="plate2/green_round_plate_hull_24" />
+          <geom pos="-1.2837e-16 -6.52256e-16 -9.36751e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00182131" mesh="plate2/green_round_plate_hull_25" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0020151" mesh="plate2/green_round_plate_hull_26" />
+          <geom pos="1.2837e-16 6.10623e-16 -1.2837e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0051376" mesh="plate2/green_round_plate_hull_27" />
+          <geom pos="4.02456e-16 2.498e-16 -7.45931e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00173721" mesh="plate2/green_round_plate_hull_28" />
+          <geom pos="-2.84495e-16 4.85723e-16 -1.38778e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00205694" mesh="plate2/green_round_plate_hull_29" />
+          <geom pos="1.21431e-16 -5.27356e-16 -1.14492e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00535517" mesh="plate2/green_round_plate_hull_30" />
+          <geom pos="-4.02456e-16 5.82867e-16 -1.02349e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00187971" mesh="plate2/green_round_plate_hull_31" />
+          <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.143046" mesh="plate2/green_round_plate_hull_32" />
+          <geom name="plate2/place:bounds" class="plate2/place" size="0.1035 0.1033 0.0161" pos="0 0 0.0161" type="box" mass="0" />
+          <geom name="plate2/place:inside" class="plate2/place" quat="1 0 0 0" type="mesh" mass="0" mesh="plate2/green_round_plate_inside" />
+          <geom name="plate2/place:top" class="plate2/place" pos="-5.31937e-19 8.67362e-19 -6.52256e-16" quat="1 0 0 0" type="mesh" mass="0" mesh="plate2/green_round_plate_top" />
+        </body>
+      </frame>
+    </body>
+    <body name="chocolate_glazed_donut" pos="0.775 -0.0375 0.816376">
+      <joint type="free" />
+      <body name="chocolate_glazed_donut/chocolate_glazed_donut">
+        <geom quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="chocolate_glazed_donut/chocolate_glazed_donut_0_skin" mesh="chocolate_glazed_donut/chocolate_glazed_donut_0_mesh" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00558628" mesh="chocolate_glazed_donut/chocolate_glazed_donut_hull_00" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00437077" mesh="chocolate_glazed_donut/chocolate_glazed_donut_hull_01" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00323016" mesh="chocolate_glazed_donut/chocolate_glazed_donut_hull_02" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00421731" mesh="chocolate_glazed_donut/chocolate_glazed_donut_hull_03" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0135805" mesh="chocolate_glazed_donut/chocolate_glazed_donut_hull_04" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0131262" mesh="chocolate_glazed_donut/chocolate_glazed_donut_hull_05" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00431153" mesh="chocolate_glazed_donut/chocolate_glazed_donut_hull_06" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0132083" mesh="chocolate_glazed_donut/chocolate_glazed_donut_hull_07" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00439294" mesh="chocolate_glazed_donut/chocolate_glazed_donut_hull_08" />
+        <geom type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.003053" mesh="chocolate_glazed_donut/chocolate_glazed_donut_hull_09" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0146801" mesh="chocolate_glazed_donut/chocolate_glazed_donut_hull_10" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00395847" mesh="chocolate_glazed_donut/chocolate_glazed_donut_hull_11" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00432336" mesh="chocolate_glazed_donut/chocolate_glazed_donut_hull_12" />
+        <geom name="chocolate_glazed_donut/place:bounds" class="chocolate_glazed_donut/place" size="0.0525 0.0525 0.0195" pos="0 0 0.0195" type="box" mass="0" />
+        <geom name="chocolate_glazed_donut/place:top" class="chocolate_glazed_donut/place" pos="-2.5411e-20 2.03288e-19 -2.35922e-16" quat="1 0 0 0" type="mesh" mass="0" mesh="chocolate_glazed_donut/chocolate_glazed_donut_top" />
+      </body>
+    </body>
+    <body name="chocolate_frosted_cupcake" pos="0.775 0.0375 0.816209">
+      <joint type="free" />
+      <body name="chocolate_frosted_cupcake/chocolate_frosted_cupcake">
+        <geom quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="chocolate_frosted_cupcake/chocolate_frosted_cupcake_0_skin" mesh="chocolate_frosted_cupcake/chocolate_frosted_cupcake_0_mesh" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0178637" mesh="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_00" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0220295" mesh="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_01" />
+        <geom pos="1.51788e-18 3.25261e-18 -3.05311e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0113324" mesh="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_02" />
+        <geom pos="3.98444e-18 3.30682e-18 -2.498e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00420791" mesh="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_03" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0154138" mesh="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_04" />
+        <geom pos="6.93889e-18 4.87891e-19 -3.46945e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00014826" mesh="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_05" />
+        <geom pos="2.12504e-17 5.29091e-17 -5.34295e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000221083" mesh="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_06" />
+        <geom pos="-1.95156e-17 -6.07153e-17 -4.996e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000143352" mesh="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_07" />
+        <geom pos="-9.1073e-18 -6.245e-17 -5.34295e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000225493" mesh="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_08" />
+        <geom pos="7.63278e-17 -4.68375e-17 -5.06539e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000143352" mesh="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_09" />
+        <geom pos="4.33681e-17 -3.20924e-17 -5.48173e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000143352" mesh="chocolate_frosted_cupcake/chocolate_frosted_cupcake_hull_10" />
+        <geom name="chocolate_frosted_cupcake/place:bounds" class="chocolate_frosted_cupcake/place" size="0.0323 0.0332 0.0328" pos="0 0 0.0328" type="box" mass="0" />
+      </body>
+    </body>
+    <body name="kiwi" pos="0.544976 0.170304 0.816207">
+      <joint type="free" />
+      <body name="kiwi/kiwi">
+        <geom quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="kiwi/kiwi_0_skin" mesh="kiwi/kiwi_0_mesh" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.08" mesh="kiwi/kiwi_hull_00" />
+        <geom name="kiwi/place:bounds" class="kiwi/place" size="0.0267 0.035 0.0269" pos="0 0 0.0269" type="box" mass="0" />
+      </body>
+    </body>
+    <body name="green_orange" pos="0.480024 0.132804 0.816257">
+      <joint type="free" />
+      <body name="green_orange/green_orange">
+        <geom quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="green_orange/green_orange_0_skin" mesh="green_orange/green_orange_0_mesh" />
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0855637" mesh="green_orange/green_orange_hull_00" />
+        <geom name="green_orange/place:bounds" class="green_orange/place" size="0.0402 0.0406 0.033" pos="0 0 0.033" type="box" mass="0" />
+      </body>
+    </body>
+  </worldbody>
+
+  <contact>
+    <exclude body1="gripper/base" body2="gripper/left_driver" />
+    <exclude body1="gripper/base" body2="gripper/right_driver" />
+    <exclude body1="gripper/base" body2="gripper/left_spring_link" />
+    <exclude body1="gripper/base" body2="gripper/right_spring_link" />
+    <exclude body1="gripper/right_coupler" body2="gripper/right_follower" />
+    <exclude body1="gripper/left_coupler" body2="gripper/left_follower" />
+  </contact>
+
+  <tendon>
+    <fixed name="gripper/split" springlength="0">
+      <joint joint="gripper/right_driver_joint" coef="0.485" />
+      <joint joint="gripper/left_driver_joint" coef="0.485" />
+    </fixed>
+  </tendon>
+
+  <equality>
+    <connect body1="gripper/right_follower" body2="gripper/right_coupler" anchor="-0.0179014 -0.00651468 0.0044" solref="0.005" solimp="0.95 0.99" />
+    <connect body1="gripper/left_follower" body2="gripper/left_coupler" anchor="-0.0179014 -0.00651468 0.0044" solref="0.005" solimp="0.95 0.99" />
+    <joint joint1="gripper/right_driver_joint" joint2="gripper/left_driver_joint" solref="0.005" solimp="0.95 0.99" />
+    <weld body1="target" body2="gripper/base" solref="0.01" />
+  </equality>
+
+  <actuator>
+    <general name="gripper" class="gripper/2f85" tendon="gripper/split" ctrlrange="0 255" forcerange="-7 7" gainprm="0.313725" biasprm="0 -100 -10" />
+    <general name="turntable" joint="turntable" ctrlrange="0 1" ctrllimited="true" forcelimited="true" forcerange="-20 20" biastype="affine" gainprm="0" biasprm="2 0 -8" />
+  </actuator>
+
+  </mujoco>
