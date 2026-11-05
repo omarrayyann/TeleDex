@@ -87,20 +87,28 @@ class TeleDexSnapshot(messages.Snapshot):
     route: str = ""  # how the phone is connected; see _route
     rate: float = 0.0  # pose messages per second from the phone
     scale: float = 1.0
+    stall: float = 0.0  # seconds since the last pose, while connected
+    hint: str = ""  # what to do when there is nothing to drive yet
 
 
 @dataclasses.dataclass(frozen=True)
 class TeleDexCommandEvent(messages.Event):
-    """Viewer -> sim: a panel action ("pause", "resume", "recenter" or "refresh")."""
+    """Viewer -> sim: a panel action ("pause", "resume", "recenter", "refresh" or "drive")."""
 
     action: str
+    body: int = -1  # "drive": the body to drive
 
 
 class TeleDexSim(plugin.SimPlugin):
-    """Drives a mocap body from the TeleDex phone pose before every physics step.
+    """Drives a body from the TeleDex phone pose before every physics step.
+
+    A mocap body follows the phone exactly. Any other body (picked in the panel with "Drive
+    selected" after double-clicking it) is pulled to the phone pose by a spring-damper force, like
+    Studio's mouse perturbation, so a scene needs no changes to be teleoperated.
 
     Args:
-        body: Name of the mocap body to drive. Defaults to the model's first mocap body.
+        body: Name of the body to drive. Defaults to the model's first mocap body; without one,
+              double-click a body in the scene and press "Drive selected".
         port: Port for the teledex Session.
         scale: Multiplier from phone motion (meters) to target motion.
         frame: (3, 3) rotation from the teledex frame (x forward, y left, z up) to the world.
@@ -143,8 +151,13 @@ class TeleDexSim(plugin.SimPlugin):
         self.signal_url = signal_url
 
         self.session = None
+        self._model = self._data = None
         self._mocap_id = -1
+        self._drive_body = -1  # a non-mocap body pulled by a force, or -1
         self._body_name = ""
+        self._hint = ""
+        self._pose_count = 0
+        self._pose_time = time.monotonic()  # when the last pose arrived
         self._actuator_ids = []
         self._error = ""
         self._paused = False
@@ -170,17 +183,17 @@ class TeleDexSim(plugin.SimPlugin):
     @messages.handler
     def on_post_model(self, event: messages.PostModelEvent) -> None:
         model = event.model
-        self._mocap_id, self._body_name, self._error = -1, "", ""
+        self._model, self._data = model, event.data
+        self._mocap_id, self._drive_body, self._body_name, self._error, self._hint = -1, -1, "", "", ""
 
         body_id = (mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, self.body) if self.body
                    else next((b for b in range(model.nbody) if model.body_mocapid[b] >= 0), -1))
-        if body_id < 0:
-            self._error = f'No body named "{self.body}"' if self.body else "Model has no mocap body"
-        elif model.body_mocapid[body_id] < 0:
-            self._error = f'Body "{self.body}" is not a mocap body (add mocap="true")'
+        if body_id < 0 and self.body:
+            self._error = f'No body named "{self.body}"'
+        elif body_id < 0:
+            self._hint = "Double-click a body in the scene, then press Drive selected"
         else:
-            self._mocap_id = int(model.body_mocapid[body_id])
-            self._body_name = model.body(body_id).name
+            self._select(model, body_id)
 
         self._actuator_ids = []
         names = self.gripper_actuators
@@ -195,10 +208,20 @@ class TeleDexSim(plugin.SimPlugin):
 
         if self._error:
             logger.warning("TeleDex: %s", self._error)
-            self._target = None
-        else:
-            self._target = self._mocap_pose(event.data)
+        self._target = self._current_pose(event.data) if self._driving else None
         self._recenter = True
+
+    @property
+    def _driving(self):
+        return not self._error and (self._mocap_id >= 0 or self._drive_body > 0)
+
+    def _select(self, model, body_id):
+        """Drive ``body_id``: directly if it is a mocap body, otherwise with a force."""
+        self._mocap_id = int(model.body_mocapid[body_id])
+        self._drive_body = -1 if self._mocap_id >= 0 else body_id
+        self._drive_inertia = None  # measured on the first pull
+        self._body_name = model.body(body_id).name or f"body {body_id}"
+        self._hint = ""
 
     @messages.handler
     def on_command(self, event: TeleDexCommandEvent) -> None:
@@ -209,6 +232,12 @@ class TeleDexSim(plugin.SimPlugin):
             self._recenter = True  # continue from where the target is, without a jump
         elif event.action == "recenter":
             self._recenter = True
+        elif event.action == "drive" and self._model is not None:
+            body = movable_body(self._model, event.body)
+            if body > 0:
+                self._release()
+                self._select(self._model, body)
+                self._recenter = True
         elif event.action == "refresh" and self.session is not None:
             # The server listens on all interfaces, so after a network switch only the advertised
             # address (and QR code) is stale. Detect it off the sim thread: it can block for ~1 s.
@@ -227,21 +256,28 @@ class TeleDexSim(plugin.SimPlugin):
             return
         latest = self.session.get_latest_data()
         connected = self.session.is_connected
+        now = time.monotonic()
+        if self.session.messages_received != self._pose_count:
+            self._pose_count, self._pose_time = self.session.messages_received, now
         if connected and not self._was_connected:
             self._recenter = True  # a (re)connected phone starts from its own origin
+            self._pose_time = now
         self._was_connected = connected
 
-        if self._mocap_id >= 0 and connected and latest["position"] is not None:
+        if self._driving and connected and latest["position"] is not None:
             phone = (np.array(latest["position"], dtype=float),
                      np.array(latest["rotation"], dtype=float).reshape(3, 3))
             self._update_target(event.data, phone)
+            if self._drive_body > 0:
+                self._pull(event.model, event.data)
             for actuator_id in self._actuator_ids:
                 opened, closed = (self.gripper_ctrl if self.gripper_ctrl is not None
                                   else event.model.actuator_ctrlrange[actuator_id])
                 event.data.ctrl[actuator_id] = closed if latest["toggle"] else opened
+        elif self._drive_body > 0:
+            self._release()  # no phone: let go of the body
 
         # Physics can step much faster than the display; the panel only needs ~60 Hz
-        now = time.monotonic()
         if now - self._last_snapshot_time < 1.0 / 60.0:
             return
         self._last_snapshot_time = now
@@ -258,13 +294,15 @@ class TeleDexSim(plugin.SimPlugin):
             route=_route(self.session) if connected else "",
             rate=self._rate if connected else 0.0,
             scale=self.scale,
+            stall=now - self._pose_time if connected else 0.0,
+            hint=self._hint,
             qr_payload=(self.session.connection_link() if self.app_clip or self.session.remote is not None
                         else f"{self.session.ip_address}:{self.session.port}"),
             body=self._body_name,
             mode=self.mode,
             paused=self._paused,
             phone_position=None if latest["position"] is None else np.array(latest["position"], dtype=float),
-            target_position=None if self._target is None else self._target[0].copy(),
+            target_position=None if self._target is None or not self._driving else self._target[0].copy(),
             target_rotation=None if self._target is None else self._target[1].copy(),
             button=bool(latest["button"]),
             toggle=bool(latest["toggle"]),
@@ -282,7 +320,7 @@ class TeleDexSim(plugin.SimPlugin):
     def _update_target(self, data, phone):
         if self._recenter:
             self._phone_ref = (phone[0].copy(), phone[1].copy())
-            self._target_ref = self._mocap_pose(data)
+            self._target_ref = self._current_pose(data)
             self._target = self._target_ref
             self.session.reset_delta()
             self._recenter = False
@@ -306,22 +344,80 @@ class TeleDexSim(plugin.SimPlugin):
         if self.position_limits is not None:
             position = np.clip(position, self.position_limits[:, 0], self.position_limits[:, 1])
         self._target = (position, rotation)
+        if self._mocap_id < 0:
+            return  # a force-driven body is pulled toward the target in _pull
 
         data.mocap_pos[self._mocap_id] = position
         quat = np.zeros(4)
         mujoco.mju_mat2Quat(quat, rotation.flatten())
         data.mocap_quat[self._mocap_id] = quat
 
-    def _mocap_pose(self, data):
-        rotation = np.zeros(9)
-        mujoco.mju_quat2Mat(rotation, data.mocap_quat[self._mocap_id])
-        return data.mocap_pos[self._mocap_id].copy(), rotation.reshape(3, 3)
+    def _current_pose(self, data):
+        """The driven body's pose: the mocap pose, or a force-driven body's centre of mass and frame."""
+        if self._mocap_id >= 0:
+            rotation = np.zeros(9)
+            mujoco.mju_quat2Mat(rotation, data.mocap_quat[self._mocap_id])
+            return data.mocap_pos[self._mocap_id].copy(), rotation.reshape(3, 3)
+        body = self._drive_body
+        return data.subtree_com[body].copy(), data.xmat[body].reshape(3, 3).copy()
+
+    # Spring-damper that pulls a force-driven body to the target, per unit mass and inertia:
+    # about 4 Hz and critically damped, with gravity cancelled so the body floats where it is held
+    PULL_HZ = 4.0
+    MAX_ACCEL = 60.0  # m/s^2, caps the force when the target is far away
+
+    def _pull(self, model, data):
+        # Work on the body's whole subtree: an object's mass often sits in child bodies
+        body = self._drive_body
+        com = data.subtree_com[body]
+        if self._drive_inertia is None:  # scalar rotational inertia about the subtree's centre of mass
+            subtree = [b for b in range(body, model.nbody) if b == body or self._descends(model, b, body)]
+            self._drive_inertia = max(1e-6, sum(
+                float(np.mean(model.body_inertia[b])) + model.body_mass[b] * float(np.sum((data.xipos[b] - com) ** 2))
+                for b in subtree))
+        position, rotation = self._target
+        omega = 2 * np.pi * self.PULL_HZ
+        kp, kd = omega ** 2, 2 * omega
+        velocity = np.zeros(6)  # [angular, linear] at the body's centre of mass, world coordinates
+        mujoco.mj_objectVelocity(model, data, mujoco.mjtObj.mjOBJ_BODY, body, velocity, 0)
+        angular = velocity[:3]
+        linear = velocity[3:] + np.cross(angular, com - data.xipos[body])  # moved to the subtree's centre
+        mass = model.body_subtreemass[body]
+        accel = kp * (position - com) - kd * linear
+        norm = np.linalg.norm(accel)
+        if norm > self.MAX_ACCEL:
+            accel *= self.MAX_ACCEL / norm
+        force = mass * (accel - model.opt.gravity)
+        error = np.zeros(3)  # rotation from the body's frame to the target's, as a rotation vector
+        current, target = np.zeros(4), np.zeros(4)
+        mujoco.mju_mat2Quat(current, data.xmat[body])
+        mujoco.mju_mat2Quat(target, rotation.flatten())
+        mujoco.mju_subQuat(error, target, current)
+        error = data.xmat[body].reshape(3, 3) @ error  # body frame -> world
+        torque = self._drive_inertia * (kp * error - kd * angular)
+        # xfrc_applied acts at the body's own centre of mass; shift the force to the subtree's
+        torque -= np.cross(data.xipos[body] - com, force)
+        data.xfrc_applied[body] = np.concatenate([force, torque])
+
+    @staticmethod
+    def _descends(model, b, ancestor):
+        while b > 0:
+            if b == ancestor:
+                return True
+            b = model.body_parentid[b]
+        return False
+
+    def _release(self):
+        if self._drive_body > 0 and self._data is not None:
+            self._data.xfrc_applied[self._drive_body] = 0
 
 
 class TeleDexPanel(plugin.ViewerPlugin):
     """Studio window with the TeleDex QR code, connection status and live pose."""
 
     QR_SIZE_PX = 150  # target width of the QR code; longer links get smaller squares
+    STALL_S = 0.25  # seconds without a pose before the connection counts as unstable
+    MIN_RATE_HZ = 40  # the phone sends about 60 poses a second
 
     def __init__(self, show_target=True):
         self.show_target = show_target
@@ -379,6 +475,12 @@ class TeleDexPanel(plugin.ViewerPlugin):
     def _build_status(self, state):
         if state.error:
             colour, title, detail = RED, state.error, ""
+        elif state.connected and state.stall > self.STALL_S:
+            colour, title = AMBER, "Connection unstable"
+            detail = f"No pose for {state.stall:.1f} s: the network is dropping packets"
+        elif state.connected and 0 < state.rate < self.MIN_RATE_HZ:
+            colour, title = AMBER, "Connection unstable"
+            detail = f"{state.route}  ·  {state.rate:.0f} Hz (the phone sends 60)"
         elif state.connected:
             colour, title = (AMBER, "Paused") if state.paused else (GREEN, "Connected")
             detail = f"{state.route}  ·  {state.rate:.0f} Hz" if state.route else ""
@@ -389,6 +491,11 @@ class TeleDexPanel(plugin.ViewerPlugin):
         imgui.TextColored(imgui.Vec4(*colour), title)
         if detail:
             imgui.TextDisabled(detail)
+        if title == "Connection unstable" and imgui.IsItemHovered():
+            imgui.SetTooltip("Wi-Fi is delaying or dropping poses. A cable is fastest: connect the\n"
+                             "iPhone by USB with Personal Hotspot on. Turning AirDrop off also helps.")
+        if state.hint and not state.error:
+            imgui.TextDisabled(state.hint)
         imgui.Spacing()
 
     def _build_pairing(self, state):
@@ -459,6 +566,18 @@ class TeleDexPanel(plugin.ViewerPlugin):
         if imgui.IsItemHovered():
             imgui.SetTooltip("Re-detect this computer's address, e.g. after switching Wi-Fi")
 
+        # Drive whatever body is selected in the scene (double-click to select)
+        model = self.viewer.model
+        selected = movable_body(model, int(self.viewer.perturb.select)) if model is not None else -1
+        name = (model.body(selected).name or f"body {selected}") if selected > 0 else ""
+        imgui.BeginDisabled(not name or name == state.body)
+        if imgui.Button(f"Drive {name}" if name and name != state.body else "Drive selected",
+                        imgui.Vec2(imgui.GetContentRegionAvail().x, 0)):
+            self.viewer.send_to_sim(TeleDexCommandEvent("drive", body=selected))
+        imgui.EndDisabled()
+        if imgui.IsItemHovered(imgui.HoveredFlags.AllowWhenDisabled):
+            imgui.SetTooltip("Double-click a body in the scene, then press this to move it with the phone")
+
     def _upload_qr(self, payload):
         qr = qrcode.QRCode(border=2, error_correction=qrcode.constants.ERROR_CORRECT_L)
         qr.add_data(payload)
@@ -493,6 +612,17 @@ class TeleDexPanel(plugin.ViewerPlugin):
         self._state = None
         self._geoms = []  # the viewer clears extra_geoms on model load
 
+
+
+def movable_body(model, body):
+    """The object a clicked body belongs to: the nearest body, going up, that can move.
+
+    Double-clicking selects whichever part is under the cursor, often a mesh's child body; this
+    walks up to the body with a joint (or mocap) that moves it. Returns -1 for fixed scenery.
+    """
+    while 0 < body < model.nbody and model.body_jntnum[body] == 0 and model.body_mocapid[body] < 0:
+        body = model.body_parentid[body]
+    return body if 0 < body < model.nbody else -1
 
 
 def _dot(colour, size=10.0):
