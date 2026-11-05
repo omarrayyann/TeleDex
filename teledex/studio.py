@@ -367,16 +367,22 @@ class TeleDexSim(plugin.SimPlugin):
     # about 4 Hz and critically damped, with gravity cancelled so the body floats where it is held
     PULL_HZ = 4.0
     MAX_ACCEL = 60.0  # m/s^2, caps the force when the target is far away
+    MAX_ANGULAR_ACCEL = 300.0  # rad/s^2, caps the torque when the target is turned far away
 
     def _pull(self, model, data):
         # Work on the body's whole subtree: an object's mass often sits in child bodies
         body = self._drive_body
         com = data.subtree_com[body]
-        if self._drive_inertia is None:  # scalar rotational inertia about the subtree's centre of mass
-            subtree = [b for b in range(body, model.nbody) if b == body or self._descends(model, b, body)]
-            self._drive_inertia = max(1e-6, sum(
-                float(np.mean(model.body_inertia[b])) + model.body_mass[b] * float(np.sum((data.xipos[b] - com) ** 2))
-                for b in subtree))
+        if self._drive_inertia is None:  # the bodies whose mass moves with this one
+            self._drive_inertia = [b for b in range(body, model.nbody) if b == body or self._descends(model, b, body)]
+        # Full rotational inertia about the centre of mass, in world coordinates, so every axis of a
+        # long thin object is pulled and damped in proportion (a single average over-drives its thin axis)
+        inertia = np.zeros((3, 3))
+        for b in self._drive_inertia:
+            frame = data.ximat[b].reshape(3, 3)
+            r = data.xipos[b] - com
+            inertia += frame @ np.diag(model.body_inertia[b]) @ frame.T + model.body_mass[b] * (r @ r * np.eye(3) - np.outer(r, r))
+        inertia += 1e-9 * np.eye(3)
         position, rotation = self._target
         omega = 2 * np.pi * self.PULL_HZ
         kp, kd = omega ** 2, 2 * omega
@@ -396,7 +402,11 @@ class TeleDexSim(plugin.SimPlugin):
         mujoco.mju_mat2Quat(target, rotation.flatten())
         mujoco.mju_subQuat(error, target, current)
         error = data.xmat[body].reshape(3, 3) @ error  # body frame -> world
-        torque = self._drive_inertia * (kp * error - kd * angular)
+        alpha = kp * error - kd * angular
+        norm = np.linalg.norm(alpha)
+        if norm > self.MAX_ANGULAR_ACCEL:
+            alpha *= self.MAX_ANGULAR_ACCEL / norm
+        torque = inertia @ alpha
         # xfrc_applied acts at the body's own centre of mass; shift the force to the subtree's
         torque -= np.cross(data.xipos[body] - com, force)
         data.xfrc_applied[body] = np.concatenate([force, torque])
