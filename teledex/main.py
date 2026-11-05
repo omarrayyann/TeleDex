@@ -17,11 +17,10 @@ try:
 except ImportError:
     HAS_QRCODE = False
 
-# Apple's default App Clip link: the iPhone Camera shows the TeleDex App Clip card for it straight
-# away (or opens the app if it is installed), with no web page in between. Extra parameters reach the
-# App Clip on iOS 17 and later.
-APP_CLIP_URL = "https://appclip.apple.com/id"
-APP_CLIP_BUNDLE_ID = "com.omarrayyan.MujocoController.Clip"
+# One link for every phone. The page sends an iPhone on to the TeleDex App Clip (or opens it straight
+# from the Camera once the App Clip experience for this URL is live), and on Android it tracks the
+# phone itself with WebXR and connects over WebRTC (see web.py).
+APP_CLIP_URL = "https://orayyan.com/teledex/clip/"
 
 
 class Session:
@@ -231,7 +230,7 @@ class Session:
         """
         Get the App Clip link that opens TeleDex and connects it to this session.
         """
-        params = {"p": APP_CLIP_BUNDLE_ID, "ip": self.ip_address, "port": self.port}
+        params = {"ip": self.ip_address, "port": self.port}
         if self.remote is not None:
             from .remote import SIGNAL_URL
 
@@ -243,7 +242,7 @@ class Session:
     @property
     def is_connected(self):
         """Whether a phone is connected, locally or over the internet."""
-        return bool(self.connected_clients) or (self.remote is not None and self.remote.connected)
+        return bool(self.connected_clients) or (self.remote is not None and (self.remote.connected or self.remote.web.connected))
 
     async def _stop_server(self):
         """
@@ -538,6 +537,17 @@ class Session:
         print(f"[INFO] Device connected over the internet from {address[0]}:{address[1]}")
         self._delta_rebase = True
         for callback in self._on_connect_callbacks:
+            callback(self)
+
+    def _on_web_connect(self):
+        print("[INFO] Device connected from the web page (WebRTC)")
+        self._delta_rebase = True
+        for callback in self._on_connect_callbacks:
+            callback(self)
+
+    def _on_web_disconnect(self):
+        print("[INFO] Web page connection lost")
+        for callback in self._on_disconnect_callbacks:
             callback(self)
 
     def _on_remote_disconnect(self):

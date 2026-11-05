@@ -58,6 +58,8 @@ IDLE = (0.35, 0.37, 0.40, 1.0)
 def _route(session):
     """How the phone is connected, e.g. "Same network · IPv6", or "" when it is not."""
     remote = session.remote
+    if remote is not None and remote.web.connected:
+        return "Web page · WebRTC"
     if remote is not None and remote.connected and remote.peer:
         ip = remote.peer[0]
         family = "IPv6" if ":" in ip else "IPv4"

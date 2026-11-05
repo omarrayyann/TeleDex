@@ -132,6 +132,8 @@ class RemoteLink(asyncio.DatagramProtocol):
         self.connected = False
         self.peer = None  # the phone's address once a signed packet arrives from it
         self.last_seen = 0.0
+        from .web import WebPeers
+        self.web = WebPeers(session, self.key)  # the web page's WebRTC connection (Android)
 
         self._socket = None
         self._tasks = []
@@ -168,6 +170,7 @@ class RemoteLink(asyncio.DatagramProtocol):
         for transport in (self.transport, self.transport6):
             if transport is not None:
                 transport.close()
+        await self.web.close()
         self.connected = False
 
     def candidates(self):
@@ -210,6 +213,7 @@ class RemoteLink(asyncio.DatagramProtocol):
         if self.connected and self.peer:
             for _ in range(3):  # UDP may drop one; the app ignores repeats within a moment
                 self._send(VIBRATE, message.encode(), self.peer)
+        self.web.send(message)
 
     # -- Receiving -----------------------------------------------------------------
 
@@ -295,6 +299,10 @@ class RemoteLink(asyncio.DatagramProtocol):
             msg = json.loads(message)
         except ValueError:
             return
+        if msg.get("type") == "rtc-offer":  # the web page (no app) wants a WebRTC connection
+            asyncio.get_running_loop().create_task(
+                self.web.answer(msg.get("id"), msg.get("sdp"), msg.get("mac"), self._signal_send))
+            return
         if msg.get("type") == "peer" and isinstance(msg.get("candidates"), list):
             self._phone_candidates = [
                 (c["ip"], int(c["port"]))
@@ -302,6 +310,15 @@ class RemoteLink(asyncio.DatagramProtocol):
                 if isinstance(c, dict) and isinstance(c.get("ip"), str) and "port" in c
             ]
             self._punch_until = time.monotonic() + PUNCH_DURATION
+            addresses = ", ".join(f"{ip}:{port}" for ip, port in self._phone_candidates) or "no addresses"
+            print(f"[INFO] A phone is connecting over the internet from {addresses}")
+
+    async def _signal_send(self, message):
+        if self._socket is not None:
+            try:
+                await self._socket.send(json.dumps(message))
+            except websockets.WebSocketException:
+                pass
 
     def _share_candidates(self):
         if self._socket is not None:
@@ -333,6 +350,9 @@ class RemoteLink(asyncio.DatagramProtocol):
             elif self._phone_candidates and now < self._punch_until:
                 for address in self._phone_candidates:
                     self._send(PUNCH, b"", address)
+            elif self._phone_candidates:
+                print("[INFO] Could not reach that phone directly: its network may block direct connections")
+                self._phone_candidates = []
             # A refreshed local address (e.g. after Session.ip_address is re-detected) is shared too
             if self._socket is not None and self.candidates() != self._sent_candidates:
                 await self._send_candidates()

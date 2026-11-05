@@ -73,6 +73,14 @@ python -m mujoco.studio.viewer --model=demos/scene0.xml --gfx=web --plugins=demo
 
 `demos/scene0.xml` is a gripper and a table of objects (put the marker in the mug), `demos/scene1.xml` is a slowly turning lazy Susan carrying plates of treats, and `demos/scene2.xml` has no robot at all. The plugin drives a mocap body named `target` if there is one and an actuator named `gripper` with the app's Toggle; in any scene you can also double-click a body and press **Drive selected** to move it with the phone.
 
+### Android Phones
+
+Android phones need no app: with `remote=True`, the same QR code opens a web page that tracks the phone with WebXR (Chrome, with Google Play Services for AR) and streams its pose over WebRTC. Install the web support on the computer:
+
+```bash
+pip install "teledex[web]"
+```
+
 ### Connecting Over the Internet
 
 By default the phone and computer must be on the same Wi-Fi. With `remote=True` the phone can connect from any network:
