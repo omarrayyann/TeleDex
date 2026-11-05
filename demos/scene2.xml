@@ -1,0 +1,657 @@
+<mujoco model="main">
+  <!-- TeleDex demo scene2: a table of objects and no robot. Double-click any object in Studio,
+     press "Drive selected" in the TeleDex panel, and move it with your phone.
+
+     python -m mujoco.studio.viewer --model=demos/scene2.xml --gfx=web --plugins=demos/studio_plugin.py -->
+
+    <compiler angle="radian" meshdir="assets" texturedir="assets" boundmass="1e-06" boundinertia="1e-08"/>
+
+  <option impratio="10" integrator="implicitfast" cone="elliptic"/>
+
+  <size memory="64M"/>
+
+  <statistic extent="0.46" center="0.62 0 0.84"/>
+
+  <visual>
+    <global azimuth="0" elevation="-30"/>
+    <quality shadowsize="16384" offsamples="16" numslices="96"/>
+    <headlight ambient="0.32 0.32 0.32" diffuse="0.32 0.32 0.32" specular="0.08 0.08 0.08"/>
+    <map znear="0.0005" shadowclip="1.5" shadowscale="0.4"/>
+  </visual>
+
+  <default>
+    <geom solref="0.005"/>
+    <default class="place">
+      <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0"/>
+    </default>
+    <default class="dinosaur/main">
+      <geom solref="0.02"/>
+      <default class="dinosaur/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0"/>
+      </default>
+    </default>
+    <default class="glasses/main">
+      <geom solref="0.02"/>
+      <default class="glasses/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0"/>
+      </default>
+    </default>
+    <default class="wooden_bowl/main">
+      <geom solref="0.02"/>
+      <default class="wooden_bowl/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0"/>
+      </default>
+    </default>
+    <default class="granola_bars/main">
+      <geom solref="0.02"/>
+      <default class="granola_bars/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0"/>
+      </default>
+    </default>
+    <default class="rubiks_cube/main">
+      <geom solref="0.02"/>
+      <default class="rubiks_cube/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0"/>
+      </default>
+    </default>
+    <default class="keyboard/main">
+      <geom solref="0.02"/>
+      <default class="keyboard/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0"/>
+      </default>
+    </default>
+    <default class="yogurt_cup/main">
+      <geom solref="0.02"/>
+      <default class="yogurt_cup/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0"/>
+      </default>
+    </default>
+    <default class="oatmeal_raisin_cookies/main">
+      <geom solref="0.02"/>
+      <default class="oatmeal_raisin_cookies/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0"/>
+      </default>
+    </default>
+    <default class="smartphone/main">
+      <geom solref="0.02"/>
+      <default class="smartphone/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0"/>
+      </default>
+    </default>
+    <default class="ceramic_mug/main">
+      <geom solref="0.02"/>
+      <default class="ceramic_mug/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0"/>
+      </default>
+    </default>
+    <default class="marker/main">
+      <geom solref="0.02"/>
+      <default class="marker/place">
+        <geom contype="0" conaffinity="0" group="4" rgba="0 0 0 0"/>
+      </default>
+    </default>
+    <default class="gripper/main">
+      <geom solref="0.02"/>
+      <default class="gripper/2f85">
+        <mesh scale="0.001 0.001 0.001"/>
+        <general biastype="affine"/>
+        <default class="gripper/driver">
+          <joint solreflimit="0.005" solimplimit="0.95 0.99" range="0 0.9" armature="0.005" damping="0.1"/>
+        </default>
+        <default class="gripper/follower">
+          <joint solreflimit="0.005" solimplimit="0.95 0.99" range="-0.872664 0.9" armature="0.001"/>
+        </default>
+        <default class="gripper/spring_link">
+          <joint stiffness="0.05" range="-0.296706 0.9" springref="2.62" armature="0.001" damping="0.00125"/>
+        </default>
+        <default class="gripper/coupler">
+          <joint solreflimit="0.005" solimplimit="0.95 0.99" range="-1.57 0" armature="0.001"/>
+        </default>
+        <default class="gripper/gripper_visual">
+          <geom type="mesh" contype="0" conaffinity="0" group="2" material="black"/>
+        </default>
+        <default class="gripper/gripper_collision">
+          <geom type="mesh" group="3"/>
+          <default class="gripper/pad_box1">
+            <geom size="0.002 0.011 0.009375" type="box" priority="1" friction="0.7" solref="0.004" solimp="0.95 0.99" rgba="0.55 0.55 0.55 1"/>
+          </default>
+          <default class="gripper/pad_box2">
+            <geom size="0.002 0.011 0.009375" type="box" priority="1" friction="0.6" solref="0.004" solimp="0.95 0.99" rgba="0.45 0.45 0.45 1"/>
+          </default>
+        </default>
+      </default>
+    </default>
+  </default>
+
+  <asset>
+    <texture type="skybox" colorspace="auto" builtin="gradient" rgb1="1 1 1" rgb2="0.97 0.97 0.97" width="512" height="3072"/>
+    <texture type="2d" colorspace="linear" name="appearance:tabletop" file="scene/OakVeneer01.png"/>
+    <texture type="2d" colorspace="auto" name="groundplane" builtin="checker" mark="edge" rgb1="0.55 0.55 0.55" markrgb="0.6 0.6 0.6" width="300" height="300"/>
+    <texture type="2d" colorspace="auto" name="tiles" builtin="checker" rgb1="0.66 0.68 0.66" rgb2="0.56 0.6 0.58" width="512" height="512"/>
+    <texture type="2d" colorspace="sRGB" name="walnut" file="scene/walnut.png"/>
+    <texture type="2d" colorspace="linear" name="dinosaur/dinosaur_0_tex" file="dinosaur/0.png"/>
+    <texture type="2d" colorspace="linear" name="glasses/glasses_0_tex" file="glasses/0.png"/>
+    <texture type="2d" colorspace="linear" name="wooden_bowl/wooden_bowl_0_tex" file="wooden_bowl/0.png"/>
+    <texture type="2d" colorspace="linear" name="granola_bars/granola_bars_0_tex" file="granola_bars/0.png"/>
+    <texture type="2d" colorspace="linear" name="rubiks_cube/rubiks_cube_0_tex" file="rubiks_cube/0.png"/>
+    <texture type="2d" colorspace="linear" name="keyboard/keyboard_0_tex" file="keyboard/0.png"/>
+    <texture type="2d" colorspace="linear" name="yogurt_cup/yogurt_cup_0_tex" file="yogurt_cup/0.png"/>
+    <texture type="2d" colorspace="linear" name="oatmeal_raisin_cookies/oatmeal_raisin_cookies_0_tex" file="oatmeal_raisin_cookies/0.png"/>
+    <texture type="2d" colorspace="linear" name="smartphone/smartphone_0_tex" file="smartphone/0.png"/>
+    <texture type="2d" colorspace="linear" name="ceramic_mug/ceramic_mug_0_tex" file="ceramic_mug/0.png"/>
+    <texture type="2d" colorspace="linear" name="marker/marker_0_tex" file="marker/0.png"/>
+    <material name="black" rgba="0.12 0.12 0.12 1"/>
+    <material name="white" rgba="0.9 0.9 0.9 1"/>
+    <material name="wall_white" emission="0.6"/>
+    <material name="groundplane" texture="groundplane" texrepeat="5 5" texuniform="true" reflectance="0.2"/>
+    <material name="floor" texture="tiles" texrepeat="2 2" texuniform="true" specular="0.05" shininess="0.1" reflectance="0.02"/>
+    <material name="tabletop" texture="appearance:tabletop" texuniform="true" specular="0.15" shininess="0.2"/>
+    <material name="dinosaur/dinosaur_0_skin" texture="dinosaur/dinosaur_0_tex" specular="0.2" shininess="0.3"/>
+    <material name="glasses/glasses_0_skin" texture="glasses/glasses_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5"/>
+    <material name="wooden_bowl/wooden_bowl_0_skin" texture="wooden_bowl/wooden_bowl_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5"/>
+    <material name="granola_bars/granola_bars_0_skin" texture="granola_bars/granola_bars_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5"/>
+    <material name="rubiks_cube/rubiks_cube_0_skin" texture="rubiks_cube/rubiks_cube_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5"/>
+    <material name="keyboard/keyboard_0_skin" texture="keyboard/keyboard_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5"/>
+    <material name="yogurt_cup/yogurt_cup_0_skin" texture="yogurt_cup/yogurt_cup_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5"/>
+    <material name="oatmeal_raisin_cookies/oatmeal_raisin_cookies_0_skin" texture="oatmeal_raisin_cookies/oatmeal_raisin_cookies_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5"/>
+    <material name="smartphone/smartphone_0_skin" texture="smartphone/smartphone_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5"/>
+    <material name="ceramic_mug/ceramic_mug_0_skin" texture="ceramic_mug/ceramic_mug_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5"/>
+    <material name="marker/marker_0_skin" texture="marker/marker_0_tex" specular="0.2" shininess="0.3" metallic="0" roughness="0.5"/>
+    <mesh name="camera_d405" content_type="model/stl" file="scene/d405.stl"/>
+    <mesh name="dinosaur/dinosaur_0_mesh" content_type="model/obj" file="dinosaur/0.obj"/>
+    <mesh name="dinosaur/dinosaur_hull_00" content_type="model/obj" file="dinosaur/h00.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_01" content_type="model/obj" file="dinosaur/h01.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_02" content_type="model/obj" file="dinosaur/h02.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_03" content_type="model/obj" file="dinosaur/h03.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_04" content_type="model/obj" file="dinosaur/h04.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_05" content_type="model/obj" file="dinosaur/h05.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_06" content_type="model/obj" file="dinosaur/h06.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_07" content_type="model/obj" file="dinosaur/h07.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_08" content_type="model/obj" file="dinosaur/h08.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_09" content_type="model/obj" file="dinosaur/h09.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_10" content_type="model/obj" file="dinosaur/h10.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_11" content_type="model/obj" file="dinosaur/h11.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_12" content_type="model/obj" file="dinosaur/h12.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_13" content_type="model/obj" file="dinosaur/h13.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_14" content_type="model/obj" file="dinosaur/h14.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_15" content_type="model/obj" file="dinosaur/h15.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_16" content_type="model/obj" file="dinosaur/h16.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_17" content_type="model/obj" file="dinosaur/h17.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_18" content_type="model/obj" file="dinosaur/h18.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_19" content_type="model/obj" file="dinosaur/h19.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_20" content_type="model/obj" file="dinosaur/h20.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_21" content_type="model/obj" file="dinosaur/h21.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_22" content_type="model/obj" file="dinosaur/h22.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_23" content_type="model/obj" file="dinosaur/h23.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_24" content_type="model/obj" file="dinosaur/h24.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_25" content_type="model/obj" file="dinosaur/h25.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_26" content_type="model/obj" file="dinosaur/h26.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_27" content_type="model/obj" file="dinosaur/h27.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_28" content_type="model/obj" file="dinosaur/h28.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_29" content_type="model/obj" file="dinosaur/h29.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_30" content_type="model/obj" file="dinosaur/h30.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_31" content_type="model/obj" file="dinosaur/h31.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_32" content_type="model/obj" file="dinosaur/h32.obj" maxhullvert="128"/>
+    <mesh name="dinosaur/dinosaur_hull_33" content_type="model/obj" file="dinosaur/h33.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_0_mesh" content_type="model/obj" file="glasses/0.obj"/>
+    <mesh name="glasses/glasses_hull_00" content_type="model/obj" file="glasses/h00.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_01" content_type="model/obj" file="glasses/h01.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_02" content_type="model/obj" file="glasses/h02.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_03" content_type="model/obj" file="glasses/h03.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_04" content_type="model/obj" file="glasses/h04.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_05" content_type="model/obj" file="glasses/h05.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_06" content_type="model/obj" file="glasses/h06.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_07" content_type="model/obj" file="glasses/h07.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_08" content_type="model/obj" file="glasses/h08.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_09" content_type="model/obj" file="glasses/h09.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_10" content_type="model/obj" file="glasses/h10.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_11" content_type="model/obj" file="glasses/h11.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_12" content_type="model/obj" file="glasses/h12.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_13" content_type="model/obj" file="glasses/h13.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_14" content_type="model/obj" file="glasses/h14.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_15" content_type="model/obj" file="glasses/h15.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_16" content_type="model/obj" file="glasses/h16.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_17" content_type="model/obj" file="glasses/h17.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_hull_18" content_type="model/obj" file="glasses/h18.obj" maxhullvert="128"/>
+    <mesh name="glasses/glasses_top" content_type="model/obj" file="glasses/top.obj"/>
+    <mesh name="wooden_bowl/wooden_bowl_0_mesh" content_type="model/obj" file="wooden_bowl/0.obj"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_00" content_type="model/obj" file="wooden_bowl/h00.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_01" content_type="model/obj" file="wooden_bowl/h01.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_02" content_type="model/obj" file="wooden_bowl/h02.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_03" content_type="model/obj" file="wooden_bowl/h03.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_04" content_type="model/obj" file="wooden_bowl/h04.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_05" content_type="model/obj" file="wooden_bowl/h05.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_06" content_type="model/obj" file="wooden_bowl/h06.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_07" content_type="model/obj" file="wooden_bowl/h07.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_08" content_type="model/obj" file="wooden_bowl/h08.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_09" content_type="model/obj" file="wooden_bowl/h09.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_10" content_type="model/obj" file="wooden_bowl/h10.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_11" content_type="model/obj" file="wooden_bowl/h11.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_12" content_type="model/obj" file="wooden_bowl/h12.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_13" content_type="model/obj" file="wooden_bowl/h13.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_14" content_type="model/obj" file="wooden_bowl/h14.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_15" content_type="model/obj" file="wooden_bowl/h15.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_16" content_type="model/obj" file="wooden_bowl/h16.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_17" content_type="model/obj" file="wooden_bowl/h17.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_18" content_type="model/obj" file="wooden_bowl/h18.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_19" content_type="model/obj" file="wooden_bowl/h19.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_20" content_type="model/obj" file="wooden_bowl/h20.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_21" content_type="model/obj" file="wooden_bowl/h21.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_22" content_type="model/obj" file="wooden_bowl/h22.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_23" content_type="model/obj" file="wooden_bowl/h23.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_24" content_type="model/obj" file="wooden_bowl/h24.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_25" content_type="model/obj" file="wooden_bowl/h25.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_26" content_type="model/obj" file="wooden_bowl/h26.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_27" content_type="model/obj" file="wooden_bowl/h27.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_28" content_type="model/obj" file="wooden_bowl/h28.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_29" content_type="model/obj" file="wooden_bowl/h29.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_30" content_type="model/obj" file="wooden_bowl/h30.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_31" content_type="model/obj" file="wooden_bowl/h31.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_32" content_type="model/obj" file="wooden_bowl/h32.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_33" content_type="model/obj" file="wooden_bowl/h33.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_34" content_type="model/obj" file="wooden_bowl/h34.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_35" content_type="model/obj" file="wooden_bowl/h35.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_36" content_type="model/obj" file="wooden_bowl/h36.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_37" content_type="model/obj" file="wooden_bowl/h37.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_38" content_type="model/obj" file="wooden_bowl/h38.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_39" content_type="model/obj" file="wooden_bowl/h39.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_40" content_type="model/obj" file="wooden_bowl/h40.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_41" content_type="model/obj" file="wooden_bowl/h41.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_42" content_type="model/obj" file="wooden_bowl/h42.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_43" content_type="model/obj" file="wooden_bowl/h43.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_44" content_type="model/obj" file="wooden_bowl/h44.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_45" content_type="model/obj" file="wooden_bowl/h45.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_46" content_type="model/obj" file="wooden_bowl/h46.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_47" content_type="model/obj" file="wooden_bowl/h47.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_48" content_type="model/obj" file="wooden_bowl/h48.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_49" content_type="model/obj" file="wooden_bowl/h49.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_hull_50" content_type="model/obj" file="wooden_bowl/h50.obj" maxhullvert="128"/>
+    <mesh name="wooden_bowl/wooden_bowl_inside" content_type="model/obj" file="wooden_bowl/inside.obj"/>
+    <mesh name="wooden_bowl/wooden_bowl_top" content_type="model/obj" file="wooden_bowl/top.obj"/>
+    <mesh name="granola_bars/granola_bars_0_mesh" content_type="model/obj" file="granola_bars/0.obj"/>
+    <mesh name="granola_bars/granola_bars_hull_00" content_type="model/obj" file="granola_bars/h00.obj" maxhullvert="128"/>
+    <mesh name="granola_bars/granola_bars_hull_01" content_type="model/obj" file="granola_bars/h01.obj" maxhullvert="128"/>
+    <mesh name="granola_bars/granola_bars_hull_02" content_type="model/obj" file="granola_bars/h02.obj" maxhullvert="128"/>
+    <mesh name="granola_bars/granola_bars_hull_03" content_type="model/obj" file="granola_bars/h03.obj" maxhullvert="128"/>
+    <mesh name="granola_bars/granola_bars_top" content_type="model/obj" file="granola_bars/top.obj"/>
+    <mesh name="rubiks_cube/rubiks_cube_0_mesh" content_type="model/obj" file="rubiks_cube/0.obj"/>
+    <mesh name="rubiks_cube/rubiks_cube_top" content_type="model/obj" file="rubiks_cube/top.obj"/>
+    <mesh name="keyboard/keyboard_0_mesh" content_type="model/obj" file="keyboard/0.obj"/>
+    <mesh name="keyboard/keyboard_hull_00" content_type="model/obj" file="keyboard/h00.obj" maxhullvert="128"/>
+    <mesh name="keyboard/keyboard_hull_01" content_type="model/obj" file="keyboard/h01.obj" maxhullvert="128"/>
+    <mesh name="keyboard/keyboard_hull_02" content_type="model/obj" file="keyboard/h02.obj" maxhullvert="128"/>
+    <mesh name="keyboard/keyboard_top" content_type="model/obj" file="keyboard/top.obj"/>
+    <mesh name="yogurt_cup/yogurt_cup_0_mesh" content_type="model/obj" file="yogurt_cup/0.obj"/>
+    <mesh name="yogurt_cup/yogurt_cup_hull_00" content_type="model/obj" file="yogurt_cup/h00.obj" maxhullvert="128"/>
+    <mesh name="yogurt_cup/yogurt_cup_hull_01" content_type="model/obj" file="yogurt_cup/h01.obj" maxhullvert="128"/>
+    <mesh name="yogurt_cup/yogurt_cup_hull_02" content_type="model/obj" file="yogurt_cup/h02.obj" maxhullvert="128"/>
+    <mesh name="yogurt_cup/yogurt_cup_hull_03" content_type="model/obj" file="yogurt_cup/h03.obj" maxhullvert="128"/>
+    <mesh name="yogurt_cup/yogurt_cup_hull_04" content_type="model/obj" file="yogurt_cup/h04.obj" maxhullvert="128"/>
+    <mesh name="yogurt_cup/yogurt_cup_hull_05" content_type="model/obj" file="yogurt_cup/h05.obj" maxhullvert="128"/>
+    <mesh name="yogurt_cup/yogurt_cup_hull_06" content_type="model/obj" file="yogurt_cup/h06.obj" maxhullvert="128"/>
+    <mesh name="yogurt_cup/yogurt_cup_hull_07" content_type="model/obj" file="yogurt_cup/h07.obj" maxhullvert="128"/>
+    <mesh name="yogurt_cup/yogurt_cup_hull_08" content_type="model/obj" file="yogurt_cup/h08.obj" maxhullvert="128"/>
+    <mesh name="yogurt_cup/yogurt_cup_hull_09" content_type="model/obj" file="yogurt_cup/h09.obj" maxhullvert="128"/>
+    <mesh name="yogurt_cup/yogurt_cup_hull_10" content_type="model/obj" file="yogurt_cup/h10.obj" maxhullvert="128"/>
+    <mesh name="yogurt_cup/yogurt_cup_hull_11" content_type="model/obj" file="yogurt_cup/h11.obj" maxhullvert="128"/>
+    <mesh name="yogurt_cup/yogurt_cup_hull_12" content_type="model/obj" file="yogurt_cup/h12.obj" maxhullvert="128"/>
+    <mesh name="yogurt_cup/yogurt_cup_hull_13" content_type="model/obj" file="yogurt_cup/h13.obj" maxhullvert="128"/>
+    <mesh name="yogurt_cup/yogurt_cup_hull_14" content_type="model/obj" file="yogurt_cup/h14.obj" maxhullvert="128"/>
+    <mesh name="yogurt_cup/yogurt_cup_hull_15" content_type="model/obj" file="yogurt_cup/h15.obj" maxhullvert="128"/>
+    <mesh name="oatmeal_raisin_cookies/oatmeal_raisin_cookies_0_mesh" content_type="model/obj" file="oatmeal_raisin_cookies/0.obj"/>
+    <mesh name="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_00" content_type="model/obj" file="oatmeal_raisin_cookies/h00.obj" maxhullvert="128"/>
+    <mesh name="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_01" content_type="model/obj" file="oatmeal_raisin_cookies/h01.obj" maxhullvert="128"/>
+    <mesh name="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_02" content_type="model/obj" file="oatmeal_raisin_cookies/h02.obj" maxhullvert="128"/>
+    <mesh name="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_03" content_type="model/obj" file="oatmeal_raisin_cookies/h03.obj" maxhullvert="128"/>
+    <mesh name="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_04" content_type="model/obj" file="oatmeal_raisin_cookies/h04.obj" maxhullvert="128"/>
+    <mesh name="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_05" content_type="model/obj" file="oatmeal_raisin_cookies/h05.obj" maxhullvert="128"/>
+    <mesh name="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_06" content_type="model/obj" file="oatmeal_raisin_cookies/h06.obj" maxhullvert="128"/>
+    <mesh name="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_07" content_type="model/obj" file="oatmeal_raisin_cookies/h07.obj" maxhullvert="128"/>
+    <mesh name="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_08" content_type="model/obj" file="oatmeal_raisin_cookies/h08.obj" maxhullvert="128"/>
+    <mesh name="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_09" content_type="model/obj" file="oatmeal_raisin_cookies/h09.obj" maxhullvert="128"/>
+    <mesh name="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_10" content_type="model/obj" file="oatmeal_raisin_cookies/h10.obj" maxhullvert="128"/>
+    <mesh name="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_11" content_type="model/obj" file="oatmeal_raisin_cookies/h11.obj" maxhullvert="128"/>
+    <mesh name="oatmeal_raisin_cookies/oatmeal_raisin_cookies_top" content_type="model/obj" file="oatmeal_raisin_cookies/top.obj"/>
+    <mesh name="smartphone/smartphone_0_mesh" content_type="model/obj" file="smartphone/0.obj"/>
+    <mesh name="smartphone/smartphone_top" content_type="model/obj" file="smartphone/top.obj"/>
+    <mesh name="ceramic_mug/ceramic_mug_0_mesh" content_type="model/obj" file="ceramic_mug/0.obj"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_00" content_type="model/obj" file="ceramic_mug/h00.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_01" content_type="model/obj" file="ceramic_mug/h01.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_02" content_type="model/obj" file="ceramic_mug/h02.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_03" content_type="model/obj" file="ceramic_mug/h03.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_04" content_type="model/obj" file="ceramic_mug/h04.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_05" content_type="model/obj" file="ceramic_mug/h05.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_06" content_type="model/obj" file="ceramic_mug/h06.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_07" content_type="model/obj" file="ceramic_mug/h07.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_08" content_type="model/obj" file="ceramic_mug/h08.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_09" content_type="model/obj" file="ceramic_mug/h09.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_10" content_type="model/obj" file="ceramic_mug/h10.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_11" content_type="model/obj" file="ceramic_mug/h11.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_12" content_type="model/obj" file="ceramic_mug/h12.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_13" content_type="model/obj" file="ceramic_mug/h13.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_14" content_type="model/obj" file="ceramic_mug/h14.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_15" content_type="model/obj" file="ceramic_mug/h15.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_16" content_type="model/obj" file="ceramic_mug/h16.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_17" content_type="model/obj" file="ceramic_mug/h17.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_18" content_type="model/obj" file="ceramic_mug/h18.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_19" content_type="model/obj" file="ceramic_mug/h19.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_20" content_type="model/obj" file="ceramic_mug/h20.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_21" content_type="model/obj" file="ceramic_mug/h21.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_22" content_type="model/obj" file="ceramic_mug/h22.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_23" content_type="model/obj" file="ceramic_mug/h23.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_24" content_type="model/obj" file="ceramic_mug/h24.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_25" content_type="model/obj" file="ceramic_mug/h25.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_26" content_type="model/obj" file="ceramic_mug/h26.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_27" content_type="model/obj" file="ceramic_mug/h27.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_28" content_type="model/obj" file="ceramic_mug/h28.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_29" content_type="model/obj" file="ceramic_mug/h29.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_30" content_type="model/obj" file="ceramic_mug/h30.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_31" content_type="model/obj" file="ceramic_mug/h31.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_32" content_type="model/obj" file="ceramic_mug/h32.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_hull_33" content_type="model/obj" file="ceramic_mug/h33.obj" maxhullvert="128"/>
+    <mesh name="ceramic_mug/ceramic_mug_inside" content_type="model/obj" file="ceramic_mug/inside.obj"/>
+    <mesh name="ceramic_mug/ceramic_mug_top" content_type="model/obj" file="ceramic_mug/top.obj"/>
+    <mesh name="marker/marker_0_mesh" content_type="model/obj" file="marker/0.obj"/>
+    <mesh name="marker/marker_hull_00" content_type="model/obj" file="marker/h00.obj" maxhullvert="128"/>
+    <mesh name="marker/marker_hull_01" content_type="model/obj" file="marker/h01.obj" maxhullvert="128"/>
+    <mesh name="marker/marker_hull_02" content_type="model/obj" file="marker/h02.obj" maxhullvert="128"/>
+    <mesh name="marker/marker_hull_03" content_type="model/obj" file="marker/h03.obj" maxhullvert="128"/>
+    <mesh name="marker/marker_hull_04" content_type="model/obj" file="marker/h04.obj" maxhullvert="128"/>
+    <mesh name="marker/marker_hull_05" content_type="model/obj" file="marker/h05.obj" maxhullvert="128"/>
+    <mesh name="marker/marker_hull_06" content_type="model/obj" file="marker/h06.obj" maxhullvert="128"/>
+    <mesh name="marker/marker_top" content_type="model/obj" file="marker/top.obj"/>
+  </asset>
+
+  <worldbody>
+    <geom name="table_plane" size="0.35 0.5 0.375" pos="0.6 0 0.398844" type="box" group="3" priority="1" friction="0.9" rgba="0 0 0 0"/>
+    <camera name="preview" quat="0.619211 0.341435 -0.341435 -0.619211" pos="-0.62 0 1.55" fovy="38"/>
+    <camera name="dashboard" quat="0.650895 0.276289 -0.276289 -0.650895" pos="0.107445 -0.005 1.32959" fovy="70"/>
+    <light name="key" pos="-0.2 0.9 1.6" dir="0.543915 -0.593362 -0.593362" diffuse="0.78 0.77 0.75" type="directional"/>
+    <light name="fill" castshadow="false" pos="1.2 -0.9 1.4" dir="-0.507673 0.609208 -0.609208" diffuse="0.2 0.2 0.21" specular="0 0 0" type="directional"/>
+    <body name="play_table" pos="0 0 0.0238438">
+      <geom name="table_border" size="0.3625 0.511905 0.0049" pos="0.6 0 0.7449" type="box" contype="0" conaffinity="0" group="2" rgba="0 0 0 1"/>
+      <geom name="table_top" size="0.35 0.5 0.005" pos="0.6 0 0.745" type="box" contype="0" conaffinity="0" group="2" rgba="1 1 1 1" material="tabletop"/>
+    </body>
+    <body name="dinosaur" pos="0.699907 -0.0445962 0.7749" quat="0.772492 -0.00122331 0.00016412 -0.635023">
+      <inertial pos="0 0 0" mass="1e-06" diaginertia="1e-08 1e-08 1e-08"/>
+      <joint type="free"/>
+      <body name="dinosaur/dinosaur">
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="dinosaur/dinosaur_0_skin" mesh="dinosaur/dinosaur_0_mesh"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0384568" mesh="dinosaur/dinosaur_hull_00"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00827533" mesh="dinosaur/dinosaur_hull_01"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0586109" mesh="dinosaur/dinosaur_hull_02"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00436052" mesh="dinosaur/dinosaur_hull_03"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00245568" mesh="dinosaur/dinosaur_hull_04"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.033977" mesh="dinosaur/dinosaur_hull_05"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0103934" mesh="dinosaur/dinosaur_hull_06"/>
+        <geom pos="0.0274 -0.0126 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00074591" mesh="dinosaur/dinosaur_hull_07"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0134566" mesh="dinosaur/dinosaur_hull_08"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00317452" mesh="dinosaur/dinosaur_hull_09"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00238259" mesh="dinosaur/dinosaur_hull_10"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00399873" mesh="dinosaur/dinosaur_hull_11"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00512509" mesh="dinosaur/dinosaur_hull_12"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0096164" mesh="dinosaur/dinosaur_hull_13"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00581481" mesh="dinosaur/dinosaur_hull_14"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00500142" mesh="dinosaur/dinosaur_hull_15"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00074591" mesh="dinosaur/dinosaur_hull_16"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0325152" mesh="dinosaur/dinosaur_hull_17"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0775599" mesh="dinosaur/dinosaur_hull_18"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00936833" mesh="dinosaur/dinosaur_hull_19"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0114302" mesh="dinosaur/dinosaur_hull_20"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00213038" mesh="dinosaur/dinosaur_hull_21"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00520727" mesh="dinosaur/dinosaur_hull_22"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00944112" mesh="dinosaur/dinosaur_hull_23"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00198482" mesh="dinosaur/dinosaur_hull_24"/>
+        <geom pos="0.0274 -0.0126 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00074591" mesh="dinosaur/dinosaur_hull_25"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.002322" mesh="dinosaur/dinosaur_hull_26"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000849099" mesh="dinosaur/dinosaur_hull_27"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00456039" mesh="dinosaur/dinosaur_hull_28"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00074591" mesh="dinosaur/dinosaur_hull_29"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00685315" mesh="dinosaur/dinosaur_hull_30"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00074591" mesh="dinosaur/dinosaur_hull_31"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00113814" mesh="dinosaur/dinosaur_hull_32"/>
+        <geom pos="0.0274 -0.0126 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00074591" mesh="dinosaur/dinosaur_hull_33"/>
+        <geom name="dinosaur/place:bounds" class="dinosaur/place" size="0.1199 0.07 0.0676" pos="0 0 0.0676" type="box" mass="0"/>
+      </body>
+    </body>
+    <body name="glasses" pos="0.433392 -0.178264 0.76349" quat="0.681042 -0.0562695 0.0607487 -0.727547">
+      <inertial pos="0 0 0" mass="1e-06" diaginertia="1e-08 1e-08 1e-08"/>
+      <joint type="free"/>
+      <body name="glasses/glasses">
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="glasses/glasses_0_skin" mesh="glasses/glasses_0_mesh"/>
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00159461" mesh="glasses/glasses_hull_00"/>
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00705163" mesh="glasses/glasses_hull_01"/>
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00458882" mesh="glasses/glasses_hull_02"/>
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0212904" mesh="glasses/glasses_hull_03"/>
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00421457" mesh="glasses/glasses_hull_04"/>
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00990236" mesh="glasses/glasses_hull_05"/>
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0101407" mesh="glasses/glasses_hull_06"/>
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00629276" mesh="glasses/glasses_hull_07"/>
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00124427" mesh="glasses/glasses_hull_08"/>
+        <geom pos="0 -0.059 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00201912" mesh="glasses/glasses_hull_09"/>
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00272526" mesh="glasses/glasses_hull_10"/>
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00180338" mesh="glasses/glasses_hull_11"/>
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000975114" mesh="glasses/glasses_hull_12"/>
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00148261" mesh="glasses/glasses_hull_13"/>
+        <geom pos="0 -0.059 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00156773" mesh="glasses/glasses_hull_14"/>
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00220697" mesh="glasses/glasses_hull_15"/>
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00159603" mesh="glasses/glasses_hull_16"/>
+        <geom pos="0 -0.059 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00272513" mesh="glasses/glasses_hull_17"/>
+        <geom pos="0 -0.059 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00173556" mesh="glasses/glasses_hull_18"/>
+        <geom name="glasses/place:bounds" class="glasses/place" size="0.0734 0.0819 0.0229" pos="0 0 0.0229" type="box" mass="0"/>
+        <geom name="glasses/place:top" class="glasses/place" pos="0 -0.059 0" quat="1 0 0 0" type="mesh" mass="0" mesh="glasses/glasses_top"/>
+      </body>
+    </body>
+    <body name="wooden_bowl" pos="0.363028 0.23789 0.77457" quat="0.810477 -0.000182563 0.00151529 -0.585769">
+      <inertial pos="0 0 0" mass="1e-06" diaginertia="1e-08 1e-08 1e-08"/>
+      <joint type="free"/>
+      <body name="wooden_bowl/wooden_bowl">
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="wooden_bowl/wooden_bowl_0_skin" mesh="wooden_bowl/wooden_bowl_0_mesh"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00578737" mesh="wooden_bowl/wooden_bowl_hull_00"/>
+        <geom pos="-0.0005 0.0009 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00628581" mesh="wooden_bowl/wooden_bowl_hull_01"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00455434" mesh="wooden_bowl/wooden_bowl_hull_02"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00513187" mesh="wooden_bowl/wooden_bowl_hull_03"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00693881" mesh="wooden_bowl/wooden_bowl_hull_04"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00717849" mesh="wooden_bowl/wooden_bowl_hull_05"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00679487" mesh="wooden_bowl/wooden_bowl_hull_06"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00619158" mesh="wooden_bowl/wooden_bowl_hull_07"/>
+        <geom pos="-0.0005 0.0009 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00603241" mesh="wooden_bowl/wooden_bowl_hull_08"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00629326" mesh="wooden_bowl/wooden_bowl_hull_09"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00669872" mesh="wooden_bowl/wooden_bowl_hull_10"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00756759" mesh="wooden_bowl/wooden_bowl_hull_11"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00775554" mesh="wooden_bowl/wooden_bowl_hull_12"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00775614" mesh="wooden_bowl/wooden_bowl_hull_13"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00445109" mesh="wooden_bowl/wooden_bowl_hull_14"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0058195" mesh="wooden_bowl/wooden_bowl_hull_15"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00421531" mesh="wooden_bowl/wooden_bowl_hull_16"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00305498" mesh="wooden_bowl/wooden_bowl_hull_17"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00330414" mesh="wooden_bowl/wooden_bowl_hull_18"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00337798" mesh="wooden_bowl/wooden_bowl_hull_19"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00397315" mesh="wooden_bowl/wooden_bowl_hull_20"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00374525" mesh="wooden_bowl/wooden_bowl_hull_21"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00355494" mesh="wooden_bowl/wooden_bowl_hull_22"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00575392" mesh="wooden_bowl/wooden_bowl_hull_23"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00319637" mesh="wooden_bowl/wooden_bowl_hull_24"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00308555" mesh="wooden_bowl/wooden_bowl_hull_25"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00375647" mesh="wooden_bowl/wooden_bowl_hull_26"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00467412" mesh="wooden_bowl/wooden_bowl_hull_27"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00324534" mesh="wooden_bowl/wooden_bowl_hull_28"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00374468" mesh="wooden_bowl/wooden_bowl_hull_29"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00403147" mesh="wooden_bowl/wooden_bowl_hull_30"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00247751" mesh="wooden_bowl/wooden_bowl_hull_31"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00332598" mesh="wooden_bowl/wooden_bowl_hull_32"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00626775" mesh="wooden_bowl/wooden_bowl_hull_33"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00285464" mesh="wooden_bowl/wooden_bowl_hull_34"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00408557" mesh="wooden_bowl/wooden_bowl_hull_35"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00454757" mesh="wooden_bowl/wooden_bowl_hull_36"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00281846" mesh="wooden_bowl/wooden_bowl_hull_37"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00361191" mesh="wooden_bowl/wooden_bowl_hull_38"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00349687" mesh="wooden_bowl/wooden_bowl_hull_39"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0060089" mesh="wooden_bowl/wooden_bowl_hull_40"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00342475" mesh="wooden_bowl/wooden_bowl_hull_41"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00302074" mesh="wooden_bowl/wooden_bowl_hull_42"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00333702" mesh="wooden_bowl/wooden_bowl_hull_43"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00261935" mesh="wooden_bowl/wooden_bowl_hull_44"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00339694" mesh="wooden_bowl/wooden_bowl_hull_45"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00493493" mesh="wooden_bowl/wooden_bowl_hull_46"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00478415" mesh="wooden_bowl/wooden_bowl_hull_47"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00539081" mesh="wooden_bowl/wooden_bowl_hull_48"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00264474" mesh="wooden_bowl/wooden_bowl_hull_49"/>
+        <geom pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00363713" mesh="wooden_bowl/wooden_bowl_hull_50"/>
+        <geom name="wooden_bowl/place:bounds" class="wooden_bowl/place" size="0.07 0.07 0.0325" pos="0 0 0.0325" type="box" mass="0"/>
+        <geom name="wooden_bowl/place:inside" class="wooden_bowl/place" pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" mass="0" mesh="wooden_bowl/wooden_bowl_inside"/>
+        <geom name="wooden_bowl/place:top" class="wooden_bowl/place" pos="-0.0005 0.0009 0" quat="1 0 0 0" type="mesh" mass="0" mesh="wooden_bowl/wooden_bowl_top"/>
+      </body>
+    </body>
+    <body name="granola_bars" pos="0.37996 -0.0567725 0.774373" quat="0.74934 -0.0141684 0.014495 0.661875">
+      <inertial pos="0 0 0" mass="1e-06" diaginertia="1e-08 1e-08 1e-08"/>
+      <joint type="free"/>
+      <body name="granola_bars/granola_bars">
+        <geom quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="granola_bars/granola_bars_0_skin" mesh="granola_bars/granola_bars_0_mesh"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.33738" mesh="granola_bars/granola_bars_hull_00"/>
+        <geom type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.275371" mesh="granola_bars/granola_bars_hull_01"/>
+        <geom type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0946625" mesh="granola_bars/granola_bars_hull_02"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.098095" mesh="granola_bars/granola_bars_hull_03"/>
+        <geom name="granola_bars/place:bounds" class="granola_bars/place" size="0.0194 0.0827 0.062" pos="0 0 0.062" type="box" mass="0"/>
+        <geom name="granola_bars/place:top" class="granola_bars/place" pos="-1.73472e-18 -7.75205e-18 -9.4369e-16" quat="1 0 0 0" type="mesh" mass="0" mesh="granola_bars/granola_bars_top"/>
+      </body>
+    </body>
+    <body name="rubiks_cube" pos="0.361834 0.0848061 0.773817" quat="0.986317 0 0 0.164859">
+      <inertial pos="0 0 0" mass="1e-06" diaginertia="1e-08 1e-08 1e-08"/>
+      <joint type="free"/>
+      <body name="rubiks_cube/rubiks_cube">
+        <geom pos="0.0102 -0.0289 0" quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="rubiks_cube/rubiks_cube_0_skin" mesh="rubiks_cube/rubiks_cube_0_mesh"/>
+        <geom size="0.02914 0.02889 0.02898" pos="0 0 0.029" type="box" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.193674"/>
+        <geom name="rubiks_cube/place:bounds" class="rubiks_cube/place" size="0.0291 0.0289 0.029" pos="0 0 0.029" type="box" mass="0"/>
+        <geom name="rubiks_cube/place:top" class="rubiks_cube/place" pos="0.0102 -0.0289 0" quat="1 0 0 0" type="mesh" mass="0" mesh="rubiks_cube/rubiks_cube_top"/>
+      </body>
+    </body>
+    <body name="keyboard" pos="0.538128 0.163551 0.771002" quat="0.531437 0.0294984 -0.0469187 -0.845283">
+      <inertial pos="0 0 0" mass="1e-06" diaginertia="1e-08 1e-08 1e-08"/>
+      <joint type="free"/>
+      <body name="keyboard/keyboard">
+        <geom pos="0 0.0012 0" quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="keyboard/keyboard_0_skin" mesh="keyboard/keyboard_0_mesh"/>
+        <geom pos="0 0.0012 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.135855" mesh="keyboard/keyboard_hull_00"/>
+        <geom pos="0 0.0012 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.183451" mesh="keyboard/keyboard_hull_01"/>
+        <geom pos="0 0.0012 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.516673" mesh="keyboard/keyboard_hull_02"/>
+        <geom name="keyboard/place:bounds" class="keyboard/place" size="0.2145 0.0645 0.0101" pos="0 0 0.0101" type="box" mass="0"/>
+        <geom name="keyboard/place:top" class="keyboard/place" pos="0 0.0012 0" quat="1 0 0 0" type="mesh" mass="0" mesh="keyboard/keyboard_top"/>
+      </body>
+    </body>
+    <body name="yogurt_cup" pos="0.391746 -0.318855 0.774166" quat="0.863675 8.77391e-06 -0.000773873 -0.504048">
+      <inertial pos="0 0 0" mass="1e-06" diaginertia="1e-08 1e-08 1e-08"/>
+      <joint type="free"/>
+      <body name="yogurt_cup/yogurt_cup">
+        <geom pos="-4.55365e-18 -5.74627e-18 -5.55112e-16" quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="yogurt_cup/yogurt_cup_0_skin" mesh="yogurt_cup/yogurt_cup_0_mesh"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.132628" mesh="yogurt_cup/yogurt_cup_hull_00"/>
+        <geom pos="8.32667e-17 3.19189e-16 -5.27356e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000674795" mesh="yogurt_cup/yogurt_cup_hull_01"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000715112" mesh="yogurt_cup/yogurt_cup_hull_02"/>
+        <geom pos="-1.8735e-16 -6.07153e-17 -5.41234e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000747747" mesh="yogurt_cup/yogurt_cup_hull_03"/>
+        <geom pos="-1.8735e-16 4.51028e-16 -7.77156e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000284657" mesh="yogurt_cup/yogurt_cup_hull_04"/>
+        <geom pos="-1.07553e-16 -3.05311e-16 -5.41234e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000769958" mesh="yogurt_cup/yogurt_cup_hull_05"/>
+        <geom pos="-3.53884e-16 1.21431e-16 -6.245e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00100792" mesh="yogurt_cup/yogurt_cup_hull_06"/>
+        <geom pos="3.46945e-16 -2.77556e-17 -5.68989e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000284657" mesh="yogurt_cup/yogurt_cup_hull_07"/>
+        <geom pos="-2.91434e-16 -1.80411e-16 -5.82867e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00173445" mesh="yogurt_cup/yogurt_cup_hull_08"/>
+        <geom pos="-2.60209e-16 5.20417e-16 -9.71445e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00112329" mesh="yogurt_cup/yogurt_cup_hull_09"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000662519" mesh="yogurt_cup/yogurt_cup_hull_10"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000579839" mesh="yogurt_cup/yogurt_cup_hull_11"/>
+        <geom pos="8.32667e-17 -3.46945e-16 -5.82867e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000622086" mesh="yogurt_cup/yogurt_cup_hull_12"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000554103" mesh="yogurt_cup/yogurt_cup_hull_13"/>
+        <geom pos="5.72459e-17 -2.15106e-16 -6.10623e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000284657" mesh="yogurt_cup/yogurt_cup_hull_14"/>
+        <geom pos="1.8735e-16 -1.80411e-16 -5.27356e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000284657" mesh="yogurt_cup/yogurt_cup_hull_15"/>
+        <geom name="yogurt_cup/place:bounds" class="yogurt_cup/place" size="0.034 0.034 0.0268" pos="0 0 0.0268" type="box" mass="0"/>
+      </body>
+    </body>
+    <body name="oatmeal_raisin_cookies" pos="0.687107 0.159989 0.774447" quat="0.527108 0.00245132 -0.00358829 0.849787">
+      <inertial pos="0 0 0" mass="1e-06" diaginertia="1e-08 1e-08 1e-08"/>
+      <joint type="free"/>
+      <body name="oatmeal_raisin_cookies/oatmeal_raisin_cookies">
+        <geom type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="oatmeal_raisin_cookies/oatmeal_raisin_cookies_0_skin" mesh="oatmeal_raisin_cookies/oatmeal_raisin_cookies_0_mesh"/>
+        <geom pos="1.0842e-18 -3.747e-16 -9.99201e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0395004" mesh="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_00"/>
+        <geom type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0602385" mesh="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_01"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0698542" mesh="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_02"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.111499" mesh="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_03"/>
+        <geom type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.159369" mesh="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_04"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0907576" mesh="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_05"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0386136" mesh="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_06"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0401783" mesh="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_07"/>
+        <geom type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.144708" mesh="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_08"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0509423" mesh="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_09"/>
+        <geom type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00306022" mesh="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_10"/>
+        <geom type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00376912" mesh="oatmeal_raisin_cookies/oatmeal_raisin_cookies_hull_11"/>
+        <geom name="oatmeal_raisin_cookies/place:bounds" class="oatmeal_raisin_cookies/place" size="0.0201 0.0614 0.0836" pos="0 0 0.0836" type="box" mass="0"/>
+        <geom name="oatmeal_raisin_cookies/place:top" class="oatmeal_raisin_cookies/place" pos="-9.21572e-19 -1.94614e-17 -1.16573e-15" quat="1 0 0 0" type="mesh" mass="0" mesh="oatmeal_raisin_cookies/oatmeal_raisin_cookies_top"/>
+      </body>
+    </body>
+    <body name="smartphone" pos="0.528112 -0.301865 0.773797" quat="0.634911 0 0 0.772585">
+      <inertial pos="0 0 0" mass="1e-06" diaginertia="1e-08 1e-08 1e-08"/>
+      <joint type="free"/>
+      <body name="smartphone/smartphone">
+        <geom pos="0.0001 0 0" quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="smartphone/smartphone_0_skin" mesh="smartphone/smartphone_0_mesh"/>
+        <geom size="0.03647 0.07698 0.00516" pos="0 0 0.0052" type="box" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.116813"/>
+        <geom name="smartphone/place:bounds" class="smartphone/place" size="0.0365 0.077 0.0052" pos="0 0 0.0052" type="box" mass="0"/>
+        <geom name="smartphone/place:top" class="smartphone/place" pos="0.0001 0 -3.19189e-16" quat="1 0 0 0" type="mesh" mass="0" mesh="smartphone/smartphone_top"/>
+      </body>
+    </body>
+    <body name="ceramic_mug" pos="0.69908 -0.318671 0.774415" quat="0.88023 -0.000392407 0.00188472 -0.474543">
+      <inertial pos="0 0 0" mass="1e-06" diaginertia="1e-08 1e-08 1e-08"/>
+      <joint type="free"/>
+      <body name="ceramic_mug/ceramic_mug">
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="ceramic_mug/ceramic_mug_0_skin" mesh="ceramic_mug/ceramic_mug_0_mesh"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00282752" mesh="ceramic_mug/ceramic_mug_hull_00"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00313766" mesh="ceramic_mug/ceramic_mug_hull_01"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00289003" mesh="ceramic_mug/ceramic_mug_hull_02"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00357035" mesh="ceramic_mug/ceramic_mug_hull_03"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00346702" mesh="ceramic_mug/ceramic_mug_hull_04"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00852354" mesh="ceramic_mug/ceramic_mug_hull_05"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00295208" mesh="ceramic_mug/ceramic_mug_hull_06"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0021549" mesh="ceramic_mug/ceramic_mug_hull_07"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00474347" mesh="ceramic_mug/ceramic_mug_hull_08"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00502588" mesh="ceramic_mug/ceramic_mug_hull_09"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00684829" mesh="ceramic_mug/ceramic_mug_hull_10"/>
+        <geom pos="0.0039 -0.0022 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00738642" mesh="ceramic_mug/ceramic_mug_hull_11"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00848156" mesh="ceramic_mug/ceramic_mug_hull_12"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00527444" mesh="ceramic_mug/ceramic_mug_hull_13"/>
+        <geom pos="0.0039 -0.0022 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00939188" mesh="ceramic_mug/ceramic_mug_hull_14"/>
+        <geom pos="0.0039 -0.0022 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0113434" mesh="ceramic_mug/ceramic_mug_hull_15"/>
+        <geom pos="0.0039 -0.0022 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00851118" mesh="ceramic_mug/ceramic_mug_hull_16"/>
+        <geom pos="0.0039 -0.0022 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00911455" mesh="ceramic_mug/ceramic_mug_hull_17"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.007722" mesh="ceramic_mug/ceramic_mug_hull_18"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00867974" mesh="ceramic_mug/ceramic_mug_hull_19"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00833649" mesh="ceramic_mug/ceramic_mug_hull_20"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0110344" mesh="ceramic_mug/ceramic_mug_hull_21"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0148687" mesh="ceramic_mug/ceramic_mug_hull_22"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00574475" mesh="ceramic_mug/ceramic_mug_hull_23"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00480227" mesh="ceramic_mug/ceramic_mug_hull_24"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00329986" mesh="ceramic_mug/ceramic_mug_hull_25"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00214387" mesh="ceramic_mug/ceramic_mug_hull_26"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00145773" mesh="ceramic_mug/ceramic_mug_hull_27"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00172691" mesh="ceramic_mug/ceramic_mug_hull_28"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000941873" mesh="ceramic_mug/ceramic_mug_hull_29"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00261144" mesh="ceramic_mug/ceramic_mug_hull_30"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00511081" mesh="ceramic_mug/ceramic_mug_hull_31"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000547464" mesh="ceramic_mug/ceramic_mug_hull_32"/>
+        <geom pos="0.0039 -0.0022 0" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00117573" mesh="ceramic_mug/ceramic_mug_hull_33"/>
+        <geom name="ceramic_mug/place:bounds" class="ceramic_mug/place" size="0.0485 0.0636 0.042" pos="0 0 0.042" type="box" mass="0"/>
+        <geom name="ceramic_mug/place:inside" class="ceramic_mug/place" pos="0.0039 -0.0022 0" type="mesh" mass="0" mesh="ceramic_mug/ceramic_mug_inside"/>
+        <geom name="ceramic_mug/place:top" class="ceramic_mug/place" pos="0.0039 -0.0022 0" type="mesh" mass="0" mesh="ceramic_mug/ceramic_mug_top"/>
+      </body>
+    </body>
+    <body name="marker" pos="0.623811 -0.220156 0.774395" quat="0.622726 0.0194861 -0.0159574 0.782035">
+      <inertial pos="0 0 0" mass="1e-06" diaginertia="1e-08 1e-08 1e-08"/>
+      <joint type="free"/>
+      <body name="marker/marker">
+        <geom quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" condim="4" solref="0.02" mass="0" material="marker/marker_0_skin" mesh="marker/marker_0_mesh"/>
+        <geom pos="1.9082e-17 -6.245e-16 -1.00614e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.000381595" mesh="marker/marker_hull_00"/>
+        <geom pos="1.43115e-17 -5.13478e-16 -1.04083e-16" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00633599" mesh="marker/marker_hull_01"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.021627" mesh="marker/marker_hull_02"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00124521" mesh="marker/marker_hull_03"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.0011034" mesh="marker/marker_hull_04"/>
+        <geom pos="3.20924e-17 5.55112e-16 -4.85723e-17" quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.00124193" mesh="marker/marker_hull_05"/>
+        <geom quat="1 0 0 0" type="mesh" condim="4" group="3" friction="0.9 0.01 0.002" solref="0.02" rgba="0 0 0 0" mass="0.001193" mesh="marker/marker_hull_06"/>
+        <geom name="marker/place:bounds" class="marker/place" size="0.0105 0.0604 0.0094" pos="0 0 0.0094" type="box" mass="0"/>
+        <geom name="marker/place:top" class="marker/place" quat="1 0 0 0" type="mesh" mass="0" mesh="marker/marker_top"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

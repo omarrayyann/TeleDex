@@ -71,7 +71,7 @@ TeleDex ships a [MuJoCo Studio](https://mujoco.readthedocs.io/en/latest/studio/i
 python -m mujoco.studio.viewer --model=demos/scene0.xml --gfx=web --plugins=demos/studio_plugin.py
 ```
 
-`demos/scene0.xml` is a table of objects (put the marker in the mug); `demos/scene1.xml` is a slowly turning lazy Susan carrying plates of treats. Any scene works with a mocap body named `target`, and an actuator named `gripper` for the app's Toggle.
+`demos/scene0.xml` is a gripper and a table of objects (put the marker in the mug), `demos/scene1.xml` is a slowly turning lazy Susan carrying plates of treats, and `demos/scene2.xml` has no robot at all. The plugin drives a mocap body named `target` if there is one and an actuator named `gripper` with the app's Toggle; in any scene you can also double-click a body and press **Drive selected** to move it with the phone.
 
 ### Connecting Over the Internet
 
