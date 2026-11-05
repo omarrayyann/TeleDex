@@ -17,7 +17,11 @@ try:
 except ImportError:
     HAS_QRCODE = False
 
-APP_CLIP_URL = "https://orayyan.com/teledex/clip/"
+# Apple's default App Clip link: the iPhone Camera shows the TeleDex App Clip card for it straight
+# away (or opens the app if it is installed), with no web page in between. Extra parameters reach the
+# App Clip on iOS 17 and later.
+APP_CLIP_URL = "https://appclip.apple.com/id"
+APP_CLIP_BUNDLE_ID = "com.omarrayyan.MujocoController.Clip"
 
 
 class Session:
@@ -227,7 +231,7 @@ class Session:
         """
         Get the App Clip link that opens TeleDex and connects it to this session.
         """
-        params = {"ip": self.ip_address, "port": self.port}
+        params = {"p": APP_CLIP_BUNDLE_ID, "ip": self.ip_address, "port": self.port}
         if self.remote is not None:
             from .remote import SIGNAL_URL
 
